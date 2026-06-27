@@ -659,7 +659,18 @@ async function atualizarFotoPerfil(input){
   const m={name:"Corrida Já",short_name:"Corrida Já",start_url:"./",display:"standalone",background_color:"#0a1020",theme_color:"#1a2a4a",lang:"pt-BR",icons:[{src:ICON_URL,sizes:"512x512",type:"image/webp",purpose:"any maskable"}]};
   document.getElementById("manifest-link").href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/json"}));
   if("serviceWorker"in navigator){
-    navigator.serviceWorker.register('./firebase-messaging-sw.js',{scope:"./"}).then(reg=>{window._swReg=reg;}).catch(e=>{console.log("SW:",e);});
+    navigator.serviceWorker.register('./firebase-messaging-sw.js',{scope:"./"})
+      .then(reg=>{
+        window._swReg=reg;
+        console.log("SW registrado com sucesso");
+      })
+      .catch(e=>{
+        console.log("SW erro (tentando blob):",e);
+        // Fallback para blob se arquivo nao encontrado
+        const swCode=`const CACHE="cj-mot-v4";self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./"])));self.skipWaiting();});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).then(r=>{const cl=r.clone();caches.open(CACHE).then(c=>{if(e.request.method==="GET")c.put(e.request,cl);});return r;}).catch(()=>caches.match(e.request)));});`;
+        const swBlob=new Blob([swCode],{type:"application/javascript"});
+        navigator.serviceWorker.register(URL.createObjectURL(swBlob),{scope:"./"}).then(r=>{window._swReg=r;}).catch(()=>{});
+      });
   }
   const dismissed=localStorage.getItem("cj_mot_pwa_ok");
   const standalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone;
@@ -727,12 +738,23 @@ function falar(texto){
   try{
     if(!('speechSynthesis'in window))return;
     window.speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(texto);
-    u.lang='pt-BR';u.rate=1.0;u.pitch=1.1;u.volume=1;
-    const v=window.speechSynthesis.getVoices().find(x=>x.lang.startsWith('pt'));
-    if(v)u.voice=v;
-    window.speechSynthesis.speak(u);
+    const faz=()=>{
+      const u=new SpeechSynthesisUtterance(texto);
+      u.lang='pt-BR';u.rate=1.0;u.pitch=1.1;u.volume=1;
+      const vozes=window.speechSynthesis.getVoices();
+      const v=vozes.find(x=>x.lang==='pt-BR')||vozes.find(x=>x.lang.startsWith('pt'));
+      if(v)u.voice=v;
+      window.speechSynthesis.speak(u);
+    };
+    if(window.speechSynthesis.getVoices().length>0){faz();}
+    else{window.speechSynthesis.onvoiceschanged=()=>{faz();window.speechSynthesis.onvoiceschanged=null;};}
   }catch(e){}
+}
+
+// Pre-carregar vozes assim que possível
+if('speechSynthesis'in window){
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
 }
 
 function som5(){
@@ -753,8 +775,12 @@ function iniciarSomPedido(corrida){
   const fala=`Corrida Já! ${nome} solicitou uma corrida para ${dest}. ${val?'Valor estimado '+val:''}`;
 
   function ciclo(){
-    if(_loopVez%2===0){som5();}else{som4();}
-    if(_loopVez===0){setTimeout(()=>falar(fala),600);}
+    if(_loopVez%2===0){
+      som5();
+      setTimeout(()=>falar('Corrida Já! '+fala),400);
+    }else{
+      som4();
+    }
     _loopVez++;
   }
   ciclo();
