@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Corrida Já – Motorista</title>
-<meta name="theme-color" content="#1a3a1a"/>
+<meta name="theme-color" content="#1a2a4a"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -14,72 +14,65 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --verde:#22c55e;--verde-escuro:#15803d;--verde-claro:#4ade80;
-  --amarelo:#f59e0b;--amarelo-claro:#fcd34d;
-  --bg:#001a00;--bg2:#002a00;--card:#0a1a0a;--card2:#0f2a0f;
-  --border:rgba(34,197,94,0.15);--text:#e8fce8;--muted:#6a9a6a;
-  --danger:#ef4444;--laranja:#f97316;
+  --azul:#1a2a4a;--azul-escuro:#0f1a30;--azul-claro:#2a4a7a;
+  --dourado:#f59e0b;--dourado-claro:#fcd34d;--laranja:#e8611a;
+  --verde:#22c55e;--verde-escuro:#15803d;
+  --bg:#0a1020;--bg2:#0f1830;--card:#131d35;--card2:#1a2540;
+  --border:rgba(245,158,11,0.2);--text:#e8eeff;--muted:#6878aa;
+  --danger:#ef4444;
 }
 html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica Neue',sans-serif;color:var(--text);overflow:hidden;}
 .screen{display:none;position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;flex-direction:column;}
 .screen.ativo{display:flex;}
 
 /* SPLASH */
-#tela-splash{background:linear-gradient(160deg,#002a00,#001a00,#000f00);align-items:center;justify-content:center;gap:24px;}
-.splash-logo{width:140px;height:140px;border-radius:36px;background:linear-gradient(135deg,var(--verde-escuro),var(--verde));display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(34,197,94,0.4);animation:logoPulse 2s ease-in-out infinite;}
-@keyframes logoPulse{0%,100%{box-shadow:0 0 60px rgba(34,197,94,0.4);}50%{box-shadow:0 0 90px rgba(34,197,94,0.65);}}
+#tela-splash{background:linear-gradient(160deg,#1a2a4a,#0a1020);align-items:center;justify-content:center;gap:20px;}
+.splash-logo{width:150px;height:150px;border-radius:36px;background:linear-gradient(135deg,#1a2a4a,#2a4a7a);display:flex;align-items:center;justify-content:center;box-shadow:0 0 60px rgba(245,158,11,0.4);animation:logoPulse 2s ease-in-out infinite;overflow:hidden;}
+.splash-logo img{width:100%;height:100%;object-fit:cover;border-radius:36px;}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 60px rgba(245,158,11,0.4);}50%{box-shadow:0 0 90px rgba(245,158,11,0.65);}}
 .splash-title{font-size:32px;font-weight:900;color:#fff;text-align:center;line-height:1.2;}
-.splash-title span{background:linear-gradient(135deg,var(--amarelo),var(--verde-claro));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.splash-title span{background:linear-gradient(135deg,var(--dourado),var(--laranja));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .splash-sub{font-size:14px;color:var(--muted);text-align:center;}
 .splash-loader{width:48px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:8px;}
-.splash-loader::after{content:'';display:block;height:100%;width:40%;background:linear-gradient(90deg,var(--amarelo),var(--verde));border-radius:2px;animation:loader 1.2s ease-in-out infinite;}
+.splash-loader::after{content:'';display:block;height:100%;width:40%;background:linear-gradient(90deg,var(--dourado),var(--laranja));border-radius:2px;animation:loader 1.2s ease-in-out infinite;}
 @keyframes loader{0%{transform:translateX(-100%);}100%{transform:translateX(350%);}}
 
 /* LOGIN */
-#tela-login{background:linear-gradient(160deg,#002a00,#001a00);padding-bottom:40px;min-height:100%;}
-.login-header{padding:60px 24px 32px;text-align:center;}
-.login-logo{width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,var(--verde-escuro),var(--verde));display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 8px 32px rgba(34,197,94,0.35);}
+#tela-login{background:linear-gradient(160deg,#1a2a4a,#0a1020);padding-bottom:40px;min-height:100%;}
+.login-header{padding:50px 24px 28px;text-align:center;}
+.login-logo{width:100px;height:100px;border-radius:26px;overflow:hidden;margin:0 auto 16px;box-shadow:0 8px 32px rgba(245,158,11,0.35);}
+.login-logo img{width:100%;height:100%;object-fit:cover;}
 .login-header h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:4px;}
 .login-header p{font-size:14px;color:var(--muted);}
 .login-body{padding:0 24px;display:flex;flex-direction:column;gap:14px;}
 .modo-tabs{display:flex;background:var(--card);border-radius:16px;padding:4px;border:1px solid var(--border);}
 .modo-tab{flex:1;padding:10px;border-radius:12px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;}
-.modo-tab.ativo{background:linear-gradient(135deg,var(--verde-escuro),var(--verde));color:#fff;box-shadow:0 4px 12px rgba(34,197,94,0.3);}
+.modo-tab.ativo{background:linear-gradient(135deg,var(--azul-escuro),var(--azul-claro));color:#fff;box-shadow:0 4px 12px rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.3);}
 .campo-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;}
 .campo-input{width:100%;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:15px;font-family:inherit;outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
-.campo-input:focus{border-color:var(--verde);}
+.campo-input:focus{border-color:var(--dourado);}
 .campo-input::placeholder{color:var(--muted);}
 .campo-select{width:100%;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:15px;font-family:inherit;outline:none;-webkit-appearance:none;appearance:none;}
-.foto-upload-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;cursor:pointer;}
-.foto-circle-preview{width:52px;height:52px;border-radius:50%;background:var(--card2);border:2px dashed rgba(34,197,94,0.4);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
-.foto-circle-preview img{width:100%;height:100%;object-fit:cover;}
-.foto-upload-text strong{display:block;font-size:14px;color:var(--text);margin-bottom:2px;}
-.foto-upload-text span{font-size:12px;color:var(--muted);}
-#input-foto-raw{display:none;}
-.btn-principal{width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--verde-escuro),var(--verde));border:none;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(34,197,94,0.35);transition:opacity 0.2s,transform 0.1s;}
+
+/* FOTO UPLOAD SIMPLES */
+.foto-upload-wrap{position:relative;}
+.foto-upload-btn{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.foto-preview{width:56px;height:56px;border-radius:50%;background:var(--card2);border:2px solid rgba(245,158,11,0.3);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px;}
+.foto-preview img{width:100%;height:100%;object-fit:cover;}
+.foto-texto strong{display:block;font-size:14px;color:var(--text);margin-bottom:2px;}
+.foto-texto span{font-size:12px;color:var(--muted);}
+input[type=file]{display:none;}
+
+.btn-principal{width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--laranja),var(--dourado));border:none;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(245,158,11,0.35);transition:opacity 0.2s,transform 0.1s;}
 .btn-principal:active{opacity:0.85;transform:scale(0.98);}
 .btn-secundario{width:100%;padding:14px;border-radius:16px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
 
-/* RECORTE */
-#modal-recorte{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.93);flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;}
-#modal-recorte.show{display:flex;}
-.recorte-titulo{font-size:18px;font-weight:700;color:#fff;text-align:center;}
-.recorte-sub{font-size:13px;color:var(--muted);text-align:center;}
-.recorte-container{position:relative;width:280px;height:280px;overflow:hidden;border-radius:16px;background:#111;touch-action:none;border:2px solid var(--border);}
-#recorte-img{position:absolute;transform-origin:center center;cursor:grab;user-select:none;-webkit-user-select:none;}
-.recorte-circulo{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:220px;height:220px;border-radius:50%;border:3px solid var(--verde);box-shadow:0 0 0 9999px rgba(0,0,0,0.55);pointer-events:none;}
-.recorte-zoom{display:flex;align-items:center;gap:12px;width:100%;}
-.recorte-zoom span{font-size:20px;cursor:pointer;color:var(--muted);}
-.recorte-zoom input{flex:1;accent-color:var(--verde);}
-.recorte-btns{display:flex;gap:10px;width:100%;}
-.btn-recorte-ok{flex:1;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--verde-escuro),var(--verde));border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
-.btn-recorte-cancel{flex:1;padding:14px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:15px;cursor:pointer;font-family:inherit;}
-
-/* TOGGLE ONLINE */
+/* TOGGLE */
 .toggle-wrap{display:flex;align-items:center;justify-content:space-between;margin:0 20px;padding:16px 20px;background:var(--card);border:1px solid var(--border);border-radius:20px;}
 .toggle-info strong{display:block;font-size:16px;font-weight:700;color:#fff;margin-bottom:2px;}
 .toggle-info span{font-size:13px;color:var(--muted);}
@@ -88,130 +81,121 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 .toggle-btn::after{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform 0.3s;box-shadow:0 2px 4px rgba(0,0,0,0.3);}
 .toggle-btn.on::after{transform:translateX(26px);}
 
-/* STATUS BADGE */
-.status-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:0.5px;}
-.badge-online{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:var(--verde);}
-.badge-offline{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);}
-.badge-dot{width:6px;height:6px;border-radius:50%;animation:pulse 2s ease-in-out infinite;}
-.badge-dot-on{background:var(--verde);box-shadow:0 0 6px var(--verde);}
-.badge-dot-off{background:var(--muted);}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
-
-/* HOME MOTORISTA */
+/* HOME */
 #tela-home{background:var(--bg);padding-bottom:80px;}
-.home-header{padding:56px 20px 16px;padding-top:max(56px,calc(env(safe-area-inset-top)+20px));background:linear-gradient(180deg,#002a00,transparent);}
+.home-header{padding:56px 20px 16px;padding-top:max(56px,calc(env(safe-area-inset-top)+20px));background:linear-gradient(180deg,#1a2a4a,transparent);}
 .home-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .home-saudacao{font-size:13px;color:var(--muted);margin-bottom:2px;}
 .home-nome{font-size:20px;font-weight:800;color:#fff;}
-.avatar{width:44px;height:44px;border-radius:50%;background:var(--card2);border:2px solid var(--verde);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--card2);border:2px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}
 .avatar img{width:100%;height:100%;object-fit:cover;}
-.avatar-initials{font-size:16px;font-weight:700;color:var(--verde);}
+.avatar-initials{font-size:16px;font-weight:700;color:var(--dourado);}
 
-/* RESUMO GANHOS */
-.ganhos-card{margin:0 20px 16px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:16px;}
+.ganhos-card{margin:0 20px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:16px;}
 .ganhos-titulo{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
 .ganhos-row{display:flex;gap:10px;}
 .ganhos-item{flex:1;background:var(--card2);border-radius:14px;padding:12px;text-align:center;}
 .ganhos-val{font-size:20px;font-weight:800;color:#fff;margin-bottom:2px;}
-.ganhos-val.destaque{color:var(--amarelo);}
+.ganhos-val.destaque{color:var(--dourado);}
 .ganhos-label{font-size:11px;color:var(--muted);}
 
-/* CRÉDITOS */
 .creditos-bar{margin:0 20px 14px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px;}
 .creditos-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .creditos-label{font-size:12px;color:var(--muted);font-weight:600;}
-.creditos-val{font-size:16px;font-weight:800;color:var(--amarelo);}
+.creditos-val{font-size:16px;font-weight:800;color:var(--dourado);}
 .creditos-barra{height:6px;background:var(--card2);border-radius:3px;overflow:hidden;}
-.creditos-prog{height:100%;background:linear-gradient(90deg,var(--verde-escuro),var(--verde));border-radius:3px;transition:width 0.5s;}
+.creditos-prog{height:100%;background:linear-gradient(90deg,var(--laranja),var(--dourado));border-radius:3px;transition:width 0.5s;}
 .creditos-aviso{font-size:11px;color:var(--muted);margin-top:6px;}
 
 /* MAPA */
 .mapa-wrap{margin:0 20px 14px;border-radius:20px;overflow:hidden;border:1px solid var(--border);height:200px;background:var(--card);position:relative;}
 #mapa-home{height:100%;width:100%;}
-.mapa-label{position:absolute;top:10px;left:10px;z-index:999;background:rgba(0,26,0,0.85);border:1px solid var(--border);border-radius:10px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--verde);backdrop-filter:blur(8px);}
+.mapa-label{position:absolute;top:10px;left:10px;z-index:999;background:rgba(10,16,32,0.85);border:1px solid var(--border);border-radius:10px;padding:5px 10px;font-size:11px;font-weight:600;color:var(--dourado);backdrop-filter:blur(8px);}
+.btn-mapa-full{position:absolute;top:10px;right:10px;z-index:999;background:rgba(10,16,32,0.85);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(8px);-webkit-tap-highlight-color:transparent;}
+
+/* MAPA TELA CHEIA */
+#modal-mapa-full{display:none;position:fixed;inset:0;z-index:9990;background:#000;flex-direction:column;}
+#modal-mapa-full.show{display:flex;}
+#mapa-full{flex:1;}
+.btn-fechar-mapa{position:absolute;top:max(20px,env(safe-area-inset-top));right:16px;z-index:9991;background:rgba(10,16,32,0.9);border:1px solid var(--border);border-radius:12px;padding:10px 16px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;backdrop-filter:blur(8px);}
 
 .secao-titulo{padding:12px 20px 8px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;}
-
-/* HISTÓRICO ITEM */
-.hist-item{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(34,197,94,0.06);}
+.hist-item{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(245,158,11,0.06);}
 .hist-icon{width:40px;height:40px;border-radius:12px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
 .hist-info{flex:1;}
 .hist-local{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
 .hist-data{font-size:12px;color:var(--muted);}
-.hist-valor{font-size:14px;font-weight:700;color:var(--amarelo);}
+.hist-valor{font-size:14px;font-weight:700;color:var(--dourado);}
 
 /* BOTTOM NAV */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;padding-bottom:max(12px,env(safe-area-inset-bottom,12px));z-index:100;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 0;gap:4px;cursor:pointer;-webkit-tap-highlight-color:transparent;border:none;background:none;font-family:inherit;}
 .nav-icon{font-size:22px;}
 .nav-label{font-size:10px;font-weight:600;color:var(--muted);}
-.nav-item.ativo .nav-label{color:var(--verde);}
+.nav-item.ativo .nav-label{color:var(--dourado);}
 
-/* MODAL NOVO PEDIDO */
-#modal-pedido{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.85);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);}
+/* MODAL PEDIDO */
+#modal-pedido{display:none;position:fixed;inset:0;z-index:9995;background:rgba(0,0,0,0.85);align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);}
 #modal-pedido.show{display:flex;}
-.pedido-sheet{background:var(--card);border-radius:28px 28px 0 0;border-top:1px solid var(--border);padding:24px 24px 40px;padding-bottom:max(40px,calc(env(safe-area-inset-bottom)+24px));width:100%;animation:slideUp 0.3s ease;}
+.pedido-sheet{background:var(--card);border-radius:28px 28px 0 0;border-top:1px solid var(--border);padding:24px;padding-bottom:max(40px,calc(env(safe-area-inset-bottom)+24px));width:100%;animation:slideUp 0.3s ease;}
 @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .pedido-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
-.pedido-passageiro-foto{width:56px;height:56px;border-radius:50%;background:var(--card2);border:2px solid var(--verde);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
-.pedido-passageiro-foto img{width:100%;height:100%;object-fit:cover;}
-.pedido-passageiro-info{flex:1;}
-.pedido-passageiro-nome{font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;}
-.pedido-tipo{font-size:12px;color:var(--muted);}
-.pedido-timer{width:52px;height:52px;border-radius:50%;background:var(--card2);border:3px solid var(--amarelo);display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0;}
-.pedido-timer-num{font-size:18px;font-weight:900;color:var(--amarelo);line-height:1;}
+.pedido-pass-foto{width:56px;height:56px;border-radius:50%;background:var(--card2);border:2px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.pedido-pass-foto img{width:100%;height:100%;object-fit:cover;}
+.pedido-pass-info{flex:1;}
+.pedido-pass-nome{font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;}
+.pedido-pass-tipo{font-size:12px;color:var(--muted);}
+.pedido-timer{width:52px;height:52px;border-radius:50%;background:var(--card2);border:3px solid var(--dourado);display:flex;align-items:center;justify-content:center;flex-direction:column;flex-shrink:0;}
+.pedido-timer-num{font-size:18px;font-weight:900;color:var(--dourado);line-height:1;}
 .pedido-timer-label{font-size:9px;color:var(--muted);}
-.pedido-rota{background:var(--card2);border-radius:16px;padding:14px;margin-bottom:16px;border:1px solid var(--border);}
+.pedido-rota{background:var(--card2);border-radius:16px;padding:14px;margin-bottom:14px;border:1px solid var(--border);}
 .pedido-rota-row{display:flex;align-items:flex-start;gap:10px;padding:5px 0;font-size:14px;color:var(--text);}
-.pedido-rota-row:not(:last-child){border-bottom:1px solid rgba(34,197,94,0.08);padding-bottom:10px;margin-bottom:5px;}
+.pedido-rota-row:not(:last-child){border-bottom:1px solid rgba(245,158,11,0.08);padding-bottom:10px;margin-bottom:5px;}
 .pedido-rota-row span{font-size:12px;color:var(--muted);min-width:55px;flex-shrink:0;}
-.pedido-obs{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--amarelo);display:none;}
+.pedido-obs{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:var(--dourado);display:none;}
 .pedido-valor-row{display:flex;gap:10px;margin-bottom:18px;}
 .pedido-valor-item{flex:1;background:var(--card2);border-radius:14px;padding:12px;text-align:center;border:1px solid var(--border);}
 .pedido-valor-num{font-size:20px;font-weight:800;color:#fff;margin-bottom:2px;}
-.pedido-valor-num.destaque{color:var(--amarelo);}
+.pedido-valor-num.destaque{color:var(--dourado);}
 .pedido-valor-label{font-size:11px;color:var(--muted);}
 .pedido-btns{display:flex;gap:12px;}
-.btn-aceitar{flex:2;padding:18px;border-radius:18px;background:linear-gradient(135deg,var(--verde-escuro),var(--verde));border:none;color:#fff;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(34,197,94,0.35);transition:opacity 0.2s;}
+.btn-aceitar{flex:2;padding:18px;border-radius:18px;background:linear-gradient(135deg,var(--laranja),var(--dourado));border:none;color:#fff;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(245,158,11,0.35);}
 .btn-aceitar:active{opacity:0.85;}
 .btn-recusar{flex:1;padding:18px;border-radius:18px;background:transparent;border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
 
 /* EM CORRIDA */
 #tela-corrida{background:var(--bg);flex-direction:column;}
-#mapa-corrida{flex:1;min-height:50vh;}
-.corrida-painel{background:var(--card);border-top:1px solid var(--border);border-radius:24px 24px 0 0;padding:20px 20px 40px;padding-bottom:max(40px,calc(env(safe-area-inset-bottom)+20px));}
-.corrida-status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+#mapa-corrida{flex:1;min-height:50vh;position:relative;}
+.btn-mapa-corrida-full{position:absolute;top:10px;right:10px;z-index:999;background:rgba(10,16,32,0.85);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;}
+.corrida-painel{background:var(--card);border-top:1px solid var(--border);border-radius:24px 24px 0 0;padding:18px 20px 40px;padding-bottom:max(40px,calc(env(safe-area-inset-bottom)+20px));}
+.corrida-status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .corrida-status-txt{font-size:15px;font-weight:700;color:var(--verde);}
-.passageiro-card{display:flex;align-items:center;gap:14px;padding:14px;background:var(--card2);border-radius:16px;border:1px solid var(--border);margin-bottom:14px;}
-.passageiro-foto{width:52px;height:52px;border-radius:50%;background:var(--bg);border:2px solid var(--verde);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:22px;}
-.passageiro-foto img{width:100%;height:100%;object-fit:cover;}
-.passageiro-info{flex:1;}
-.passageiro-nome{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;}
-.passageiro-destino{font-size:13px;color:var(--muted);}
-.passageiro-obs{font-size:12px;color:var(--amarelo);margin-top:3px;}
-.corrida-acoes{display:flex;gap:10px;margin-bottom:14px;}
+.status-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);font-size:11px;font-weight:700;color:var(--verde);}
+.passageiro-card{display:flex;align-items:center;gap:14px;padding:14px;background:var(--card2);border-radius:16px;border:1px solid var(--border);margin-bottom:12px;}
+.pass-foto-corrida{width:52px;height:52px;border-radius:50%;background:var(--bg);border:2px solid var(--dourado);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:22px;}
+.pass-foto-corrida img{width:100%;height:100%;object-fit:cover;}
+.pass-info-corrida{flex:1;}
+.pass-nome-corrida{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px;}
+.pass-destino-corrida{font-size:13px;color:var(--muted);}
+.pass-obs-corrida{font-size:12px;color:var(--dourado);margin-top:3px;}
+.corrida-acoes{display:flex;gap:10px;margin-bottom:12px;}
 .btn-nav{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:13px;border-radius:16px;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.25);color:#38bdf8;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-zap{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:13px;border-radius:16px;background:#25d366;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
-
-/* VALOR INPUT */
-.valor-input-wrap{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:14px;}
+.valor-input-wrap{background:var(--card2);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:12px;}
 .valor-input-label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;}
 .valor-input-row{display:flex;align-items:center;gap:10px;}
 .valor-prefix{font-size:20px;font-weight:700;color:var(--muted);}
 .valor-input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:28px;font-weight:900;font-family:inherit;width:100%;}
-.valor-input::placeholder{color:var(--card2);}
-
-.btn-concluir{width:100%;padding:18px;border-radius:18px;background:linear-gradient(135deg,var(--verde-escuro),var(--verde));border:none;color:#fff;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(34,197,94,0.35);}
-.btn-concluir:active{opacity:0.85;}
+.btn-concluir{width:100%;padding:18px;border-radius:18px;background:linear-gradient(135deg,var(--laranja),var(--dourado));border:none;color:#fff;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(245,158,11,0.35);}
 .btn-cancelar-corrida{width:100%;padding:13px;border-radius:16px;background:transparent;border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;}
 
 /* GANHOS */
 #tela-ganhos{background:var(--bg);padding-bottom:80px;}
-.ganhos-header{background:linear-gradient(180deg,#002a00,transparent);padding:56px 20px 24px;padding-top:max(56px,calc(env(safe-area-inset-top)+20px));}
+.ganhos-header{background:linear-gradient(180deg,#1a2a4a,transparent);padding:56px 20px 24px;padding-top:max(56px,calc(env(safe-area-inset-top)+20px));}
 .ganhos-header h2{font-size:22px;font-weight:800;color:#fff;}
-.ganhos-resumo-card{margin:0 20px 16px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;}
+.ganhos-resumo-card{margin:0 20px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;}
 .ganhos-total{text-align:center;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
-.ganhos-total-val{font-size:40px;font-weight:900;color:var(--amarelo);line-height:1;}
+.ganhos-total-val{font-size:40px;font-weight:900;color:var(--dourado);line-height:1;}
 .ganhos-total-label{font-size:13px;color:var(--muted);margin-top:4px;}
 .ganhos-stats{display:flex;gap:10px;}
 .ganhos-stat{flex:1;background:var(--card2);border-radius:14px;padding:12px;text-align:center;}
@@ -226,27 +210,29 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 .corrida-hist-rota{font-size:13px;color:var(--muted);margin-bottom:8px;}
 .corrida-hist-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border);}
 .corrida-hist-passageiro{font-size:13px;color:var(--muted);}
-.corrida-hist-valor{font-size:18px;font-weight:800;color:var(--amarelo);}
+.corrida-hist-valor{font-size:18px;font-weight:800;color:var(--dourado);}
 
 /* PERFIL */
 #tela-perfil{background:var(--bg);padding-bottom:80px;}
-.perfil-header{background:linear-gradient(180deg,#002a00,transparent);padding:56px 20px 24px;padding-top:max(56px,calc(env(safe-area-inset-top)+20px));}
+.perfil-header{background:linear-gradient(180deg,#1a2a4a,transparent);padding:56px 20px 24px;padding-top:max(56px,calc(env(safe-area-inset-top)+20px));}
 .perfil-header h2{font-size:22px;font-weight:800;color:#fff;margin-bottom:4px;}
 .perfil-header p{font-size:13px;color:var(--muted);}
 .perfil-card{margin:0 20px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
 .perfil-user{display:flex;align-items:center;gap:14px;padding:20px;border-bottom:1px solid var(--border);}
-.perfil-avatar{width:64px;height:64px;border-radius:50%;background:var(--card2);border:3px solid var(--verde);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:26px;font-weight:700;color:var(--verde);}
+.perfil-avatar-wrap{position:relative;flex-shrink:0;}
+.perfil-avatar{width:72px;height:72px;border-radius:50%;background:var(--card2);border:3px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--dourado);}
 .perfil-avatar img{width:100%;height:100%;object-fit:cover;}
+.perfil-foto-edit{position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--dourado);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;border:2px solid var(--card);}
 .perfil-nome{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;}
 .perfil-fone{font-size:13px;color:var(--muted);}
-.perfil-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;color:var(--verde);}
+.perfil-badge{display:inline-flex;align-items:center;gap:4px;margin-top:6px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;color:var(--dourado);}
 .perfil-veiculo{padding:16px 20px;border-bottom:1px solid var(--border);}
 .perfil-veiculo-titulo{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px;}
 .perfil-veiculo-row{display:flex;gap:10px;}
 .perfil-veiculo-item{flex:1;background:var(--card2);border-radius:12px;padding:10px;text-align:center;}
 .perfil-veiculo-val{font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;}
 .perfil-veiculo-label{font-size:11px;color:var(--muted);}
-.perfil-menu-item{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid rgba(34,197,94,0.05);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.perfil-menu-item{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid rgba(245,158,11,0.05);cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .perfil-menu-item:last-child{border-bottom:none;}
 .perfil-menu-icon{width:38px;height:38px;border-radius:12px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .perfil-menu-text{flex:1;}
@@ -255,12 +241,37 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 .perfil-menu-arrow{color:var(--muted);font-size:18px;}
 .btn-sair{margin:0 20px;width:calc(100% - 40px);padding:15px;border-radius:16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
 
+/* PWA BANNER */
+#pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9997;padding:16px 20px;padding-bottom:max(16px,env(safe-area-inset-bottom,16px));background:linear-gradient(135deg,#1a2a4a,#131d35);border-top:1px solid rgba(245,158,11,0.3);box-shadow:0 -8px 32px rgba(0,0,0,0.5);animation:slideUp 0.4s ease;}
+#pwa-banner.show{display:block;}
+.pwa-inner{display:flex;align-items:center;gap:14px;max-width:700px;margin:0 auto;}
+.pwa-icon{width:52px;height:52px;border-radius:14px;overflow:hidden;flex-shrink:0;}
+.pwa-icon img{width:100%;height:100%;object-fit:cover;}
+.pwa-text{flex:1;}
+.pwa-text strong{display:block;font-size:14px;font-weight:700;color:#fff;margin-bottom:2px;}
+.pwa-text span{font-size:12px;color:var(--muted);}
+.pwa-btns{display:flex;gap:8px;flex-shrink:0;}
+.btn-instalar{padding:10px 16px;border-radius:20px;background:linear-gradient(135deg,var(--laranja),var(--dourado));border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.btn-fechar-pwa{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* iOS GUIDE */
+#ios-guide{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9997;padding:24px 20px;padding-bottom:max(24px,env(safe-area-inset-bottom,24px));background:linear-gradient(135deg,#1a2a4a,#131d35);border-top:1px solid rgba(245,158,11,0.3);box-shadow:0 -8px 32px rgba(0,0,0,0.5);animation:slideUp 0.4s ease;}
+#ios-guide.show{display:block;}
+.ios-inner{max-width:700px;margin:0 auto;}
+.ios-titulo{font-size:16px;font-weight:700;color:#fff;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.ios-steps{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.ios-step{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--muted);line-height:1.5;}
+.ios-num{width:22px;height:22px;border-radius:50%;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:var(--dourado);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ios-step em{font-style:normal;color:rgba(255,255,255,0.85);font-weight:600;}
+.chip-ios{display:inline-flex;align-items:center;gap:3px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:6px;padding:1px 7px;font-size:11px;color:var(--dourado);font-weight:600;}
+.btn-fechar-ios{width:100%;padding:13px;border-radius:20px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+
 /* TOAST / LOADING */
-#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#0a1a0a;border:1px solid var(--border);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;color:var(--text);z-index:99999;opacity:0;transition:all 0.3s;white-space:normal;text-align:center;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,0.4);pointer-events:none;}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 20px;font-size:13px;font-weight:600;color:var(--text);z-index:99999;opacity:0;transition:all 0.3s;white-space:normal;text-align:center;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,0.4);pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 #loading{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9998;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 #loading.show{display:flex;}
-.loading-spinner{width:48px;height:48px;border:3px solid rgba(34,197,94,0.2);border-top-color:var(--verde);border-radius:50%;animation:spin 0.8s linear infinite;}
+.loading-spinner{width:48px;height:48px;border:3px solid rgba(245,158,11,0.2);border-top-color:var(--dourado);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
@@ -269,16 +280,30 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 <!-- SPLASH -->
 <div class="screen ativo" id="tela-splash">
   <div class="splash-logo">
-    <svg viewBox="0 0 80 80" width="70" height="70" xmlns="http://www.w3.org/2000/svg">
-      <!-- Moto simplificada -->
-      <ellipse cx="22" cy="54" rx="14" ry="14" fill="none" stroke="#4ade80" stroke-width="4"/>
-      <ellipse cx="22" cy="54" rx="5" ry="5" fill="#4ade80"/>
-      <ellipse cx="58" cy="54" rx="14" ry="14" fill="none" stroke="#4ade80" stroke-width="4"/>
-      <ellipse cx="58" cy="54" rx="5" ry="5" fill="#4ade80"/>
-      <path d="M22 40 L36 28 L50 28 L60 40 L22 40Z" fill="#fcd34d"/>
-      <path d="M36 28 L42 18 L54 18 L50 28Z" fill="#4ade80"/>
-      <line x1="2" y1="44" x2="10" y2="44" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="4" y1="50" x2="10" y2="50" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/>
+    <svg viewBox="0 0 150 150" width="150" height="150" xmlns="http://www.w3.org/2000/svg">
+      <rect width="150" height="150" fill="#1a2a4a"/>
+      <circle cx="75" cy="65" r="55" fill="url(#cg1)"/>
+      <defs>
+        <radialGradient id="cg1" cx="40%" cy="40%">
+          <stop offset="0%" stop-color="#f59e0b"/>
+          <stop offset="60%" stop-color="#e8611a"/>
+          <stop offset="100%" stop-color="#7c2d12"/>
+        </radialGradient>
+      </defs>
+      <!-- Carro -->
+      <rect x="30" y="58" width="90" height="28" rx="10" fill="#fcd34d"/>
+      <rect x="42" y="44" width="60" height="20" rx="7" fill="#fef3c7"/>
+      <circle cx="48" cy="90" r="11" fill="#1a2a4a"/><circle cx="48" cy="90" r="5" fill="#f59e0b"/>
+      <circle cx="102" cy="90" r="11" fill="#1a2a4a"/><circle cx="102" cy="90" r="5" fill="#f59e0b"/>
+      <!-- Volante -->
+      <circle cx="78" cy="62" r="9" fill="none" stroke="#1a2a4a" stroke-width="2.5"/>
+      <line x1="78" y1="53" x2="78" y2="71" stroke="#1a2a4a" stroke-width="1.5"/>
+      <line x1="69" y1="62" x2="87" y2="62" stroke="#1a2a4a" stroke-width="1.5"/>
+      <!-- Check -->
+      <polyline points="83,57 86,60 92,54" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Texto -->
+      <text x="75" y="120" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="11" font-weight="900" fill="white">CORRIDA JÁ</text>
+      <text x="75" y="135" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="#f59e0b">MOTORISTA</text>
     </svg>
   </div>
   <div class="splash-title">Corrida Já<br/><span>Motorista</span></div>
@@ -290,13 +315,15 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 <div class="screen" id="tela-login">
   <div class="login-header">
     <div class="login-logo">
-      <svg viewBox="0 0 60 60" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="16" cy="42" rx="10" ry="10" fill="none" stroke="#4ade80" stroke-width="3"/>
-        <ellipse cx="16" cy="42" rx="4" ry="4" fill="#4ade80"/>
-        <ellipse cx="44" cy="42" rx="10" ry="10" fill="none" stroke="#4ade80" stroke-width="3"/>
-        <ellipse cx="44" cy="42" rx="4" ry="4" fill="#4ade80"/>
-        <path d="M16 30 L26 20 L38 20 L46 30 L16 30Z" fill="#fcd34d"/>
-        <path d="M26 20 L30 13 L40 13 L38 20Z" fill="#4ade80"/>
+      <svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" rx="20" fill="#1a2a4a"/>
+        <circle cx="50" cy="42" r="34" fill="url(#lg1)"/>
+        <defs><radialGradient id="lg1" cx="40%" cy="40%"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#c2410c"/></radialGradient></defs>
+        <rect x="22" y="38" width="56" height="18" rx="6" fill="#fcd34d"/>
+        <rect x="30" y="28" width="38" height="14" rx="5" fill="#fef3c7"/>
+        <circle cx="32" cy="58" r="7" fill="#1a2a4a"/><circle cx="32" cy="58" r="3" fill="#f59e0b"/>
+        <circle cx="68" cy="58" r="7" fill="#1a2a4a"/><circle cx="68" cy="58" r="3" fill="#f59e0b"/>
+        <text x="50" y="88" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#f59e0b">MOTORISTA</text>
       </svg>
     </div>
     <h1>Corrida Já</h1>
@@ -308,7 +335,6 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
       <button class="modo-tab" id="tab-entrar" onclick="alternarModo('entrar')">Entrar</button>
     </div>
 
-    <!-- CADASTRO -->
     <div id="form-cadastro">
       <div style="display:flex;flex-direction:column;gap:12px;">
         <div><div class="campo-label">Nome completo</div><input class="campo-input" id="cad-nome" type="text" placeholder="Seu nome" autocomplete="name"/></div>
@@ -323,23 +349,20 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
         </div>
         <div><div class="campo-label">Placa do veículo</div><input class="campo-input" id="cad-placa" type="text" placeholder="ABC-1234" style="text-transform:uppercase;"/></div>
         <div>
-          <div class="campo-label">Foto de perfil</div>
-          <div class="foto-upload-btn" onclick="document.getElementById('input-foto-raw').click()">
-            <div class="foto-circle-preview" id="foto-preview">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div class="foto-upload-text">
-              <strong id="foto-btn-texto">Adicionar foto</strong>
-              <span>Passageiros vão te reconhecer</span>
+          <div class="campo-label">Foto de perfil (opcional)</div>
+          <div class="foto-upload-btn" onclick="document.getElementById('input-foto-cad').click()">
+            <div class="foto-preview" id="foto-preview-cad">📷</div>
+            <div class="foto-texto">
+              <strong id="foto-texto-cad">Adicionar foto</strong>
+              <span>Toque para escolher da galeria</span>
             </div>
           </div>
-          <input type="file" id="input-foto-raw" accept="image/*" onchange="abrirRecorte(this)"/>
+          <input type="file" id="input-foto-cad" accept="image/*" onchange="processarFoto(this,'foto-preview-cad','foto-texto-cad','fotoFinalCad')"/>
         </div>
         <button class="btn-principal" onclick="cadastrar()">Criar minha conta</button>
       </div>
     </div>
 
-    <!-- ENTRAR -->
     <div id="form-entrar" style="display:none;">
       <div style="display:flex;flex-direction:column;gap:12px;">
         <div><div class="campo-label">WhatsApp cadastrado</div><input class="campo-input" id="login-fone" type="tel" placeholder="(19) 99999-9999"/></div>
@@ -349,33 +372,13 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
   </div>
 </div>
 
-<!-- RECORTE -->
-<div id="modal-recorte">
-  <div class="recorte-titulo">Ajustar foto de perfil</div>
-  <div class="recorte-sub">Arraste e use o zoom para encaixar seu rosto</div>
-  <div class="recorte-container" id="recorte-container">
-    <img id="recorte-img" draggable="false"/>
-    <div style="position:absolute;inset:0;pointer-events:none;"><div class="recorte-circulo"></div></div>
-  </div>
-  <div class="recorte-zoom">
-    <span onclick="zoomRecorte(-0.05)">🔍</span>
-    <input type="range" id="zoom-slider" min="0.5" max="4" step="0.05" value="1" oninput="aplicarZoom(parseFloat(this.value))"/>
-    <span onclick="zoomRecorte(0.05)">🔎</span>
-  </div>
-  <div class="recorte-btns">
-    <button class="btn-recorte-cancel" onclick="fecharRecorte()">Cancelar</button>
-    <button class="btn-recorte-ok" onclick="confirmarRecorte()">Usar esta foto ✓</button>
-  </div>
-</div>
-
-<!-- HOME MOTORISTA -->
+<!-- HOME -->
 <div class="screen" id="tela-home">
   <div class="home-header">
     <div class="home-header-top">
       <div><div class="home-saudacao" id="saudacao">Bom dia!</div><div class="home-nome" id="home-nome">Olá, motorista</div></div>
       <div class="avatar" id="home-avatar" onclick="irPara('perfil')"><div class="avatar-initials" id="home-initial">👤</div></div>
     </div>
-    <!-- Toggle Online/Offline -->
     <div class="toggle-wrap">
       <div class="toggle-info">
         <strong id="toggle-label">Você está offline</strong>
@@ -385,17 +388,12 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
     </div>
   </div>
 
-  <!-- Créditos -->
-  <div class="creditos-bar" id="creditos-bar">
-    <div class="creditos-top">
-      <div class="creditos-label">💳 Seus créditos</div>
-      <div class="creditos-val" id="creditos-val">R$ 0,00</div>
-    </div>
+  <div class="creditos-bar">
+    <div class="creditos-top"><div class="creditos-label">💳 Seus créditos</div><div class="creditos-val" id="creditos-val">R$ 0,00</div></div>
     <div class="creditos-barra"><div class="creditos-prog" id="creditos-prog" style="width:0%"></div></div>
     <div class="creditos-aviso" id="creditos-aviso">Fale com o administrador para recarregar</div>
   </div>
 
-  <!-- Ganhos do dia -->
   <div class="ganhos-card">
     <div class="ganhos-titulo">Seus ganhos hoje</div>
     <div class="ganhos-row">
@@ -405,8 +403,11 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
     </div>
   </div>
 
-  <!-- Mapa -->
-  <div class="mapa-wrap"><div class="mapa-label">📍 Sua posição</div><div id="mapa-home"></div></div>
+  <div class="mapa-wrap">
+    <div class="mapa-label">📍 Sua posição</div>
+    <button class="btn-mapa-full" onclick="abrirMapaFull()">⛶ Tela cheia</button>
+    <div id="mapa-home"></div>
+  </div>
 
   <div class="secao-titulo">Últimas corridas</div>
   <div id="lista-hist-home"><div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Nenhuma corrida ainda</div></div>
@@ -418,69 +419,58 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
   </div>
 </div>
 
-<!-- MODAL NOVO PEDIDO -->
+<!-- MODAL PEDIDO -->
 <div id="modal-pedido">
   <div class="pedido-sheet">
     <div class="pedido-header">
-      <div class="pedido-passageiro-foto" id="ped-foto">👤</div>
-      <div class="pedido-passageiro-info">
-        <div class="pedido-passageiro-nome" id="ped-nome">—</div>
-        <div class="pedido-tipo" id="ped-tipo">Passageiro cadastrado</div>
+      <div class="pedido-pass-foto" id="ped-foto">👤</div>
+      <div class="pedido-pass-info">
+        <div class="pedido-pass-nome" id="ped-nome">—</div>
+        <div class="pedido-pass-tipo" id="ped-tipo">Passageiro</div>
       </div>
-      <div class="pedido-timer">
-        <div class="pedido-timer-num" id="ped-timer">15</div>
-        <div class="pedido-timer-label">seg</div>
-      </div>
+      <div class="pedido-timer"><div class="pedido-timer-num" id="ped-timer">15</div><div class="pedido-timer-label">seg</div></div>
     </div>
-
     <div class="pedido-rota">
       <div class="pedido-rota-row"><span>🟡 Origem</span><div id="ped-origem">—</div></div>
       <div class="pedido-rota-row"><span>🔴 Destino</span><div id="ped-destino">—</div></div>
     </div>
-
     <div class="pedido-obs" id="ped-obs"></div>
-
     <div class="pedido-valor-row">
       <div class="pedido-valor-item"><div class="pedido-valor-num destaque" id="ped-valor">—</div><div class="pedido-valor-label">Valor estimado</div></div>
-      <div class="pedido-valor-item"><div class="pedido-valor-num" id="ped-comissao">R$ 1,50</div><div class="pedido-valor-label">Sua comissão</div></div>
+      <div class="pedido-valor-item"><div class="pedido-valor-num" id="ped-comissao">R$ 1,50</div><div class="pedido-valor-label">Comissão</div></div>
     </div>
-
     <div class="pedido-btns">
       <button class="btn-recusar" onclick="recusarCorrida()">Recusar</button>
-      <button class="btn-aceitar" onclick="aceitarCorrida()">✓ Aceitar corrida</button>
+      <button class="btn-aceitar" onclick="aceitarCorrida()">✓ Aceitar</button>
     </div>
   </div>
 </div>
 
 <!-- EM CORRIDA -->
 <div class="screen" id="tela-corrida">
-  <div id="mapa-corrida"></div>
+  <div id="mapa-corrida" style="position:relative;">
+    <button class="btn-mapa-corrida-full" onclick="abrirMapaFull()">⛶ Tela cheia</button>
+  </div>
   <div class="corrida-painel">
     <div class="corrida-status-row">
       <div class="corrida-status-txt" id="corrida-status-txt">🚗 A caminho do passageiro</div>
-      <div class="status-badge badge-online"><div class="badge-dot badge-dot-on"></div>Em corrida</div>
+      <div class="status-chip">● Em corrida</div>
     </div>
-
     <div class="passageiro-card">
-      <div class="passageiro-foto" id="pass-foto">👤</div>
-      <div class="passageiro-info">
-        <div class="passageiro-nome" id="pass-nome">—</div>
-        <div class="passageiro-destino" id="pass-destino">—</div>
-        <div class="passageiro-obs" id="pass-obs" style="display:none;"></div>
+      <div class="pass-foto-corrida" id="pass-foto">👤</div>
+      <div class="pass-info-corrida">
+        <div class="pass-nome-corrida" id="pass-nome">—</div>
+        <div class="pass-destino-corrida" id="pass-destino">—</div>
+        <div class="pass-obs-corrida" id="pass-obs" style="display:none;"></div>
       </div>
     </div>
-
     <div class="corrida-acoes">
-      <button class="btn-nav" id="btn-navegar" onclick="abrirNavegacao()">
-        🗺️ Navegar
-      </button>
-      <button class="btn-zap" id="btn-zap-passageiro">
+      <button class="btn-nav" onclick="abrirNavegacao()">🗺️ Navegar</button>
+      <button class="btn-zap" id="btn-zap-pass">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
         Falar
       </button>
     </div>
-
-    <!-- Valor da corrida -->
     <div class="valor-input-wrap">
       <div class="valor-input-label">💰 Informe o valor cobrado</div>
       <div class="valor-input-row">
@@ -488,7 +478,6 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
         <input type="number" class="valor-input" id="valor-corrida" placeholder="0,00" step="0.50" min="0"/>
       </div>
     </div>
-
     <button class="btn-concluir" onclick="concluirCorrida()">✓ Concluir corrida</button>
     <button class="btn-cancelar-corrida" onclick="cancelarCorridaMotorista()">Cancelar corrida</button>
   </div>
@@ -498,17 +487,14 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 <div class="screen" id="tela-ganhos">
   <div class="ganhos-header"><h2>Meus Ganhos</h2></div>
   <div class="ganhos-resumo-card">
-    <div class="ganhos-total">
-      <div class="ganhos-total-val" id="total-ganhos-geral">R$ 0,00</div>
-      <div class="ganhos-total-label">Total acumulado</div>
-    </div>
+    <div class="ganhos-total"><div class="ganhos-total-val" id="total-ganhos">R$ 0,00</div><div class="ganhos-total-label">Total acumulado</div></div>
     <div class="ganhos-stats">
-      <div class="ganhos-stat"><div class="ganhos-stat-val" id="total-corridas-geral">0</div><div class="ganhos-stat-label">Corridas</div></div>
-      <div class="ganhos-stat"><div class="ganhos-stat-val" id="total-aval-geral">—</div><div class="ganhos-stat-label">Avaliação</div></div>
-      <div class="ganhos-stat"><div class="ganhos-stat-val" id="creditos-geral">R$ 0</div><div class="ganhos-stat-label">Créditos</div></div>
+      <div class="ganhos-stat"><div class="ganhos-stat-val" id="total-corridas">0</div><div class="ganhos-stat-label">Corridas</div></div>
+      <div class="ganhos-stat"><div class="ganhos-stat-val" id="total-aval">—</div><div class="ganhos-stat-label">Avaliação</div></div>
+      <div class="ganhos-stat"><div class="ganhos-stat-val" id="total-creditos">R$ 0</div><div class="ganhos-stat-label">Créditos</div></div>
     </div>
   </div>
-  <div class="secao-titulo">Histórico de corridas</div>
+  <div style="padding:12px 20px 4px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">Histórico</div>
   <div id="lista-corridas-ganhos"></div>
   <div class="bottom-nav">
     <button class="nav-item" onclick="irPara('home')"><div class="nav-icon">🏠</div><div class="nav-label">Início</div></button>
@@ -522,7 +508,11 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
   <div class="perfil-header"><h2>Perfil</h2><p>Seus dados de motorista</p></div>
   <div class="perfil-card">
     <div class="perfil-user">
-      <div class="perfil-avatar" id="perfil-avatar">👤</div>
+      <div class="perfil-avatar-wrap">
+        <div class="perfil-avatar" id="perfil-avatar">👤</div>
+        <div class="perfil-foto-edit" onclick="document.getElementById('input-foto-perfil').click()">✏️</div>
+        <input type="file" id="input-foto-perfil" accept="image/*" onchange="atualizarFotoPerfil(this)"/>
+      </div>
       <div>
         <div class="perfil-nome" id="perfil-nome">—</div>
         <div class="perfil-fone" id="perfil-fone">—</div>
@@ -539,21 +529,68 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
     </div>
     <div class="perfil-menu-item" onclick="irPara('ganhos')">
       <div class="perfil-menu-icon">💰</div>
-      <div class="perfil-menu-text"><div class="perfil-menu-title">Meus ganhos</div><div class="perfil-menu-sub" id="perfil-ganhos-sub">0 corridas realizadas</div></div>
+      <div class="perfil-menu-text"><div class="perfil-menu-title">Meus ganhos</div><div class="perfil-menu-sub" id="perfil-ganhos-sub">0 corridas</div></div>
       <div class="perfil-menu-arrow">›</div>
     </div>
     <div class="perfil-menu-item">
       <div class="perfil-menu-icon">💳</div>
-      <div class="perfil-menu-text"><div class="perfil-menu-title">Créditos</div><div class="perfil-menu-sub" id="perfil-creditos-sub">R$ 0,00 disponível</div></div>
+      <div class="perfil-menu-text"><div class="perfil-menu-title">Créditos</div><div class="perfil-menu-sub" id="perfil-creditos-sub">R$ 0,00</div></div>
       <div class="perfil-menu-arrow">›</div>
     </div>
   </div>
   <button class="btn-sair" onclick="sair()">Sair da conta</button>
-  <div style="text-align:center;margin-top:24px;font-size:11px;color:rgba(255,255,255,0.15);">Corrida Já · Desenvolvido por Heitor Serra Neto</div>
+  <div style="text-align:center;margin-top:24px;font-size:11px;color:rgba(255,255,255,0.15);">Corrida Já Motorista · Desenvolvido por Heitor Serra Neto</div>
   <div class="bottom-nav">
     <button class="nav-item" onclick="irPara('home')"><div class="nav-icon">🏠</div><div class="nav-label">Início</div></button>
     <button class="nav-item" onclick="irPara('ganhos')"><div class="nav-icon">💰</div><div class="nav-label">Ganhos</div></button>
     <button class="nav-item ativo" onclick="irPara('perfil')"><div class="nav-icon">👤</div><div class="nav-label">Perfil</div></button>
+  </div>
+</div>
+
+<!-- MAPA TELA CHEIA -->
+<div id="modal-mapa-full">
+  <button class="btn-fechar-mapa" onclick="fecharMapaFull()">✕ Fechar</button>
+  <div id="mapa-full"></div>
+</div>
+
+<!-- PWA BANNER -->
+<div id="pwa-banner">
+  <div class="pwa-inner">
+    <div class="pwa-icon">
+      <svg viewBox="0 0 52 52" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
+        <rect width="52" height="52" rx="12" fill="#1a2a4a"/>
+        <circle cx="26" cy="22" r="16" fill="#e8611a"/>
+        <rect x="14" y="18" width="24" height="10" rx="4" fill="#fcd34d"/>
+        <rect x="18" y="13" width="14" height="8" rx="3" fill="#fef3c7"/>
+        <circle cx="18" cy="30" r="4" fill="#1a2a4a"/><circle cx="18" cy="30" r="2" fill="#f59e0b"/>
+        <circle cx="34" cy="30" r="4" fill="#1a2a4a"/><circle cx="34" cy="30" r="2" fill="#f59e0b"/>
+        <text x="26" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-size="5" font-weight="700" fill="#f59e0b">MOTORISTA</text>
+      </svg>
+    </div>
+    <div class="pwa-text">
+      <strong>Instalar Corrida Já Motorista</strong>
+      <span>Adicione à tela inicial para acesso rápido</span>
+    </div>
+    <div class="pwa-btns">
+      <button class="btn-instalar" id="btn-instalar">Instalar</button>
+      <button class="btn-fechar-pwa" onclick="fecharPWA()">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- iOS GUIDE -->
+<div id="ios-guide">
+  <div class="ios-inner">
+    <div class="ios-titulo">
+      📲 Instalar no iPhone
+      <button class="btn-fechar-pwa" onclick="fecharPWA()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:var(--muted);">✕</button>
+    </div>
+    <div class="ios-steps">
+      <div class="ios-step"><div class="ios-num">1</div><span>Toque em <span class="chip-ios">⬆ Compartilhar</span> na barra do Safari</span></div>
+      <div class="ios-step"><div class="ios-num">2</div><span>Role e toque em <em>"Adicionar à Tela de Início"</em></span></div>
+      <div class="ios-step"><div class="ios-num">3</div><span>Toque em <em>"Adicionar"</em> para confirmar</span></div>
+    </div>
+    <button class="btn-fechar-ios" onclick="fecharPWA()">Entendi</button>
   </div>
 </div>
 
@@ -563,21 +600,181 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Helvetica 
 <script>
 // ── FIREBASE ──
 const firebaseConfig={apiKey:"AIzaSyAts9fsoZ_GrF3MRHDRlAw61Xti2uBkdnM",authDomain:"staffcheck-d6f20.firebaseapp.com",projectId:"staffcheck-d6f20",storageBucket:"staffcheck-d6f20.firebasestorage.app",messagingSenderId:"1055570421019",appId:"1:1055570421019:web:7b5dcc564bfe1c30189fbe"};
+const VAPID_KEY='BFN3DWquumMbyHoaFlQlW29NqD2y2xnysFJfAU44IqAwBYjdCkil3mH7hqn2poU9pF9j-owNxySnVnN6dkSGTNQ';
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 
 // ── ESTADO ──
-let motorista=null,corridaAtiva=null,mapaHome=null,mapaCorrida=null;
-let marcadorPosicao=null,unsubPedidos=null,unsubCorrida=null;
-let online=false,fotoFinal=null,posicaoAtual=null,gpsInterval=null;
-let pedidoAtual=null,timerPedido=null,timerSeg=15;
+let motorista=null,corridaAtiva=null,mapaHome=null,mapaCorrida=null,mapaFull=null;
+let marcadorPosicao=null,unsubPedidos=null,online=false;
+let fotoFinalCad=null,gpsInterval=null,pedidoAtual=null,timerPedido=null,timerSeg=15;
 const COMISSAO=1.50;
+
+// ── PROCESSAR FOTO SIMPLES (comprime sem recorte) ──
+function processarFoto(input,previewId,textoId,varName){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=300;
+      let w=img.width,h=img.height;
+      if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const result=canvas.toDataURL('image/jpeg',0.8);
+      // Salva na variável correta
+      if(varName==='fotoFinalCad') fotoFinalCad=result;
+      // Preview
+      const prev=document.getElementById(previewId);
+      prev.innerHTML=`<img src="${result}"/>`;
+      if(textoId) document.getElementById(textoId).textContent='Foto adicionada ✓';
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+// ── ATUALIZAR FOTO NO PERFIL ──
+async function atualizarFotoPerfil(input){
+  const file=input.files[0];
+  if(!file||!motorista) return;
+  mostrarLoading(true);
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    const img=new Image();
+    img.onload=async()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=300;let w=img.width,h=img.height;
+      if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const novaFoto=canvas.toDataURL('image/jpeg',0.8);
+      try{
+        await db.collection('cj_motoristas').doc(motorista.id).update({foto:novaFoto});
+        motorista.foto=novaFoto;
+        localStorage.setItem('cj_motorista',JSON.stringify(motorista));
+        atualizarPerfil();
+        atualizarHome();
+        mostrarLoading(false);
+        toast('Foto atualizada! ✓');
+      }catch(e){mostrarLoading(false);toast('Erro ao atualizar foto.');}
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+// ── PWA ──
+const ICON_SVG=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="80" fill="#1a2a4a"/><circle cx="256" cy="210" r="160" fill="#e8611a"/><rect x="136" y="180" width="240" height="100" rx="40" fill="#fcd34d"/><rect x="176" y="120" width="160" height="80" rx="30" fill="#fef3c7"/><circle cx="176" cy="290" r="40" fill="#1a2a4a"/><circle cx="176" cy="290" r="20" fill="#f59e0b"/><circle cx="336" cy="290" r="40" fill="#1a2a4a"/><circle cx="336" cy="290" r="20" fill="#f59e0b"/><text x="256" y="450" text-anchor="middle" font-family="Arial Black,sans-serif" font-size="60" font-weight="900" fill="white">CJ</text><text x="256" y="500" text-anchor="middle" font-family="Arial,sans-serif" font-size="36" font-weight="700" fill="#f59e0b">MOTORISTA</text></svg>`;
+const ICON_URL='data:image/svg+xml,'+encodeURIComponent(ICON_SVG);
+
+(function initPWA(){
+  document.getElementById('apple-icon').href=ICON_URL;
+  const m={name:'Corrida Já Motorista',short_name:'CJ Motorista',start_url:'./',display:'standalone',background_color:'#0a1020',theme_color:'#1a2a4a',lang:'pt-BR',icons:[{src:ICON_URL,sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
+  document.getElementById('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));
+
+  // Service Worker com push
+  const swCode=`
+importScripts('https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js');
+firebase.initializeApp({apiKey:"AIzaSyAts9fsoZ_GrF3MRHDRlAw61Xti2uBkdnM",authDomain:"staffcheck-d6f20.firebaseapp.com",projectId:"staffcheck-d6f20",messagingSenderId:"1055570421019",appId:"1:1055570421019:web:7b5dcc564bfe1c30189fbe"});
+const messaging=firebase.messaging();
+const CACHE='cj-mot-v2';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./'])));self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))));self.clients.claim();});
+self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).then(r=>{const cl=r.clone();caches.open(CACHE).then(c=>{if(e.request.method==='GET')c.put(e.request,cl);});return r;}).catch(()=>caches.match(e.request)));});
+messaging.onBackgroundMessage(payload=>{
+  self.registration.showNotification(payload.notification.title||'Novo pedido!',{body:payload.notification.body||'Um passageiro está chamando.',icon:'${ICON_URL}',badge:'${ICON_URL}',vibrate:[200,100,200],tag:'corrida-nova'});
+});
+self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.openWindow('./'));});`;
+
+  if('serviceWorker'in navigator){
+    const swBlob=new Blob([swCode],{type:'application/javascript'});
+    const swURL=URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swURL,{scope:'./'}).then(reg=>{
+      window._swReg=reg;
+    }).catch(()=>{});
+  }
+
+  // PWA banner
+  const dismissed=localStorage.getItem('cj_mot_pwa_ok');
+  const standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+  let deferredPrompt=null;
+
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();deferredPrompt=e;
+    if(!standalone&&!dismissed){
+      setTimeout(()=>document.getElementById('pwa-banner').classList.add('show'),3000);
+      // Auto fecha em 5 segundos se não interagir
+      setTimeout(()=>{
+        const b=document.getElementById('pwa-banner');
+        if(b.classList.contains('show'))b.classList.remove('show');
+      },8000);
+    }
+  });
+
+  document.getElementById('btn-instalar').addEventListener('click',async()=>{
+    if(!deferredPrompt)return;
+    deferredPrompt.prompt();
+    const{outcome}=await deferredPrompt.userChoice;
+    deferredPrompt=null;
+    fecharPWA();
+    if(outcome==='accepted')localStorage.setItem('cj_mot_pwa_ok','1');
+  });
+
+  if(isIOS&&!standalone&&!dismissed){
+    setTimeout(()=>{
+      document.getElementById('ios-guide').classList.add('show');
+      setTimeout(()=>document.getElementById('ios-guide').classList.remove('show'),8000);
+    },3000);
+  }
+})();
+
+function fecharPWA(){
+  document.getElementById('pwa-banner').classList.remove('show');
+  document.getElementById('ios-guide').classList.remove('show');
+  localStorage.setItem('cj_mot_pwa_ok','1');
+}
+
+// ── NOTIFICAÇÃO PUSH ──
+async function pedirPermissaoNotificacao(){
+  try{
+    if(!('Notification'in window))return;
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted')return;
+    if(!window._swReg)return;
+    const messaging=firebase.messaging();
+    const token=await messaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:window._swReg});
+    if(token&&motorista){
+      await db.collection('cj_motoristas').doc(motorista.id).update({fcmToken:token});
+    }
+  }catch(e){console.log('Push não disponível:',e);}
+}
+
+function notificarNovoPedido(corrida){
+  if(Notification.permission==='granted'){
+    try{
+      new Notification('🏍️ Novo pedido!',{
+        body:`${corrida.clienteNome||'Passageiro'} → ${corrida.destino}`,
+        icon:ICON_URL,
+        tag:'corrida-nova',
+        vibrate:[200,100,200]
+      });
+    }catch(e){}
+  }
+}
 
 // ── SOM ──
 function tocarSom(tipo){
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const freqs=tipo==='pedido'?[880,1100,880,1100]:[523,659,784];
+    const freqs=tipo==='pedido'?[880,1100,880,1100,880]:[523,659,784];
     freqs.forEach((f,i)=>{
       const o=ctx.createOscillator(),g=ctx.createGain();
       o.connect(g);g.connect(ctx.destination);
@@ -590,104 +787,6 @@ function tocarSom(tipo){
     });
   }catch(e){}
 }
-
-// ── RECORTE + EXIF ──
-let recorteImgEl=null,recortePosX=0,recortePosY=0,recorteEscala=1,recorteDragging=false;
-let recorteStartX=0,recorteStartY=0,recorteOrigX=0,recorteOrigY=0;
-
-function getExifOrientation(buf){
-  const v=new DataView(buf);
-  if(v.getUint16(0,false)!==0xFFD8)return -1;
-  let o=2;
-  while(o<v.byteLength){
-    if(v.getUint16(o,false)===0xFFE1){
-      if(v.getUint32(o+=2,false)!==0x45786966)return -1;
-      const l=v.getUint16(o+=6,false)===0x4949;
-      o+=v.getUint32(o+4,l);
-      const t=v.getUint16(o,l);
-      for(let i=0;i<t;i++)if(v.getUint16(o+(i*12)+2,l)===0x0112)return v.getUint16(o+(i*12)+8,l);
-    }
-    o+=2+v.getUint16(o+2,false);
-  }
-  return -1;
-}
-
-function corrigirOrientacao(img,ori,cb){
-  const c=document.createElement('canvas'),ctx=c.getContext('2d');
-  const w=img.naturalWidth,h=img.naturalHeight;
-  if(ori>4){c.width=h;c.height=w;}else{c.width=w;c.height=h;}
-  switch(ori){case 2:ctx.transform(-1,0,0,1,w,0);break;case 3:ctx.transform(-1,0,0,-1,w,h);break;case 4:ctx.transform(1,0,0,-1,0,h);break;case 5:ctx.transform(0,1,1,0,0,0);break;case 6:ctx.transform(0,1,-1,0,h,0);break;case 7:ctx.transform(0,-1,-1,0,h,w);break;case 8:ctx.transform(0,-1,1,0,0,w);break;default:ctx.transform(1,0,0,1,0,0);}
-  ctx.drawImage(img,0,0);cb(c.toDataURL('image/jpeg',0.9));
-}
-
-function abrirRecorte(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const buf=e.target.result,ori=getExifOrientation(buf);
-    const url=URL.createObjectURL(new Blob([buf],{type:file.type}));
-    const img=new Image();
-    img.onload=()=>{
-      corrigirOrientacao(img,ori,data=>{
-        const el=document.getElementById('recorte-img');
-        el.src=data;
-        el.onload=()=>{
-          const cont=document.getElementById('recorte-container');
-          const cw=cont.offsetWidth,ch=cont.offsetHeight;
-          const eb=Math.max(cw/el.naturalWidth,ch/el.naturalHeight)*1.05;
-          recorteEscala=eb;recortePosX=(cw-el.naturalWidth*eb)/2;recortePosY=(ch-el.naturalHeight*eb)/2;
-          const sl=document.getElementById('zoom-slider');
-          sl.min=eb*0.5;sl.max=eb*4;sl.value=eb;
-          aplicarTransform();document.getElementById('modal-recorte').classList.add('show');recorteImgEl=el;
-        };
-      });
-      URL.revokeObjectURL(url);
-    };img.src=url;
-  };
-  reader.readAsArrayBuffer(file);input.value='';
-}
-
-function aplicarTransform(){if(!recorteImgEl)return;recorteImgEl.style.width=recorteImgEl.naturalWidth*recorteEscala+'px';recorteImgEl.style.height=recorteImgEl.naturalHeight*recorteEscala+'px';recorteImgEl.style.left=recortePosX+'px';recorteImgEl.style.top=recortePosY+'px';}
-function aplicarZoom(v){const c=document.getElementById('recorte-container');const cx=c.offsetWidth/2,cy=c.offsetHeight/2;const r=v/recorteEscala;recortePosX=cx-(cx-recortePosX)*r;recortePosY=cy-(cy-recortePosY)*r;recorteEscala=v;aplicarTransform();}
-function zoomRecorte(d){const sl=document.getElementById('zoom-slider');const n=Math.max(parseFloat(sl.min),Math.min(parseFloat(sl.max),recorteEscala+d));sl.value=n;aplicarZoom(n);}
-function fecharRecorte(){document.getElementById('modal-recorte').classList.remove('show');}
-function confirmarRecorte(){
-  const cont=document.getElementById('recorte-container');
-  const cw=cont.offsetWidth,ch=cont.offsetHeight,DIAM=220;
-  const ox=(cw-DIAM)/2,oy=(ch-DIAM)/2;
-  const canvas=document.createElement('canvas');canvas.width=200;canvas.height=200;
-  const ctx=canvas.getContext('2d');
-  ctx.beginPath();ctx.arc(100,100,100,0,Math.PI*2);ctx.clip();
-  const il=parseFloat(recorteImgEl.style.left),it=parseFloat(recorteImgEl.style.top);
-  const iw=parseFloat(recorteImgEl.style.width),ih=parseFloat(recorteImgEl.style.height);
-  ctx.drawImage(recorteImgEl,(ox-il)/iw*recorteImgEl.naturalWidth,(oy-it)/ih*recorteImgEl.naturalHeight,DIAM/iw*recorteImgEl.naturalWidth,DIAM/ih*recorteImgEl.naturalHeight,0,0,200,200);
-  fotoFinal=canvas.toDataURL('image/jpeg',0.75);
-  document.getElementById('foto-preview').innerHTML=`<img src="${fotoFinal}"/>`;
-  document.getElementById('foto-btn-texto').textContent='Foto adicionada ✓';
-  fecharRecorte();toast('Foto recortada! ✓');
-}
-
-const rcont=document.getElementById('recorte-container');
-function sd(x,y){recorteDragging=true;recorteStartX=x;recorteStartY=y;recorteOrigX=recortePosX;recorteOrigY=recortePosY;}
-function md(x,y){if(!recorteDragging)return;recortePosX=recorteOrigX+(x-recorteStartX);recortePosY=recorteOrigY+(y-recorteStartY);aplicarTransform();}
-function ed(){recorteDragging=false;}
-rcont.addEventListener('mousedown',e=>sd(e.clientX,e.clientY));
-rcont.addEventListener('mousemove',e=>md(e.clientX,e.clientY));
-rcont.addEventListener('mouseup',ed);
-rcont.addEventListener('touchstart',e=>{e.preventDefault();sd(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
-rcont.addEventListener('touchmove',e=>{e.preventDefault();md(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
-rcont.addEventListener('touchend',ed);
-
-// ── PWA ──
-(function(){
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="80" fill="#15803d"/><ellipse cx="140" cy="380" rx="80" ry="80" fill="none" stroke="#4ade80" stroke-width="32"/><ellipse cx="140" cy="380" rx="32" ry="32" fill="#4ade80"/><ellipse cx="372" cy="380" rx="80" ry="80" fill="none" stroke="#4ade80" stroke-width="32"/><ellipse cx="372" cy="380" rx="32" ry="32" fill="#4ade80"/><path d="M140 280 L220 190 L340 190 L400 280 Z" fill="#fcd34d"/><path d="M220 190 L256 110 L340 110 L340 190Z" fill="#4ade80"/></svg>`;
-  const iu='data:image/svg+xml,'+encodeURIComponent(svg);
-  document.getElementById('apple-icon').href=iu;
-  const m={name:'CJ Motorista',short_name:'CJ Motor',start_url:'./',display:'standalone',background_color:'#001a00',theme_color:'#15803d',lang:'pt-BR',icons:[{src:iu,sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
-  document.getElementById('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'}));
-  const sw=`const C='cj-mot-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./'])));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).then(r=>{const cl=r.clone();caches.open(C).then(c=>{if(e.request.method==='GET')c.put(e.request,cl);});return r;}).catch(()=>caches.match(e.request)));});`;
-  if('serviceWorker'in navigator)navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'})),{scope:'./'}).catch(()=>{});
-})();
 
 // ── INIT ──
 window.addEventListener('load',()=>{
@@ -702,7 +801,7 @@ window.addEventListener('load',()=>{
 function mostrarTela(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('ativo'));document.getElementById(id).classList.add('ativo');}
 function irPara(dest){
   switch(dest){
-    case 'home':mostrarTela('tela-home');iniciarMapaHome();atualizarHome();carregarHistHome();carregarGanhosHome();atualizarCreditos();break;
+    case 'home':mostrarTela('tela-home');iniciarMapaHome();atualizarHome();carregarGanhosHome();carregarHistHome();atualizarCreditos();break;
     case 'ganhos':mostrarTela('tela-ganhos');carregarGanhos();break;
     case 'perfil':mostrarTela('tela-perfil');atualizarPerfil();break;
   }
@@ -724,11 +823,13 @@ async function cadastrar(){
   mostrarLoading(true);
   try{
     const id='mot_'+Date.now();
-    const dados={id,nome,fone,cpf,veiculo,placa,foto:fotoFinal||null,online:false,creditos:0,totalCorridas:0,totalGanhos:0,avaliacao:null,criadoEm:new Date().toISOString()};
+    const dados={id,nome,fone,cpf,veiculo,placa,foto:fotoFinalCad||null,online:false,creditos:0,totalCorridas:0,totalGanhos:0,avaliacao:null,criadoEm:new Date().toISOString()};
     await db.collection('cj_motoristas').doc(id).set(dados);
     motorista=dados;
     localStorage.setItem('cj_motorista',JSON.stringify(motorista));
-    mostrarLoading(false);irPara('home');
+    mostrarLoading(false);
+    irPara('home');
+    pedirPermissaoNotificacao();
   }catch(e){mostrarLoading(false);toast('Erro: '+e.message);}
 }
 
@@ -741,7 +842,9 @@ async function entrar(){
     if(snap.empty){toast('Número não encontrado.');mostrarLoading(false);return;}
     motorista={id:snap.docs[0].id,...snap.docs[0].data()};
     localStorage.setItem('cj_motorista',JSON.stringify(motorista));
-    mostrarLoading(false);irPara('home');
+    mostrarLoading(false);
+    irPara('home');
+    pedirPermissaoNotificacao();
   }catch(e){mostrarLoading(false);toast('Erro ao entrar.');}
 }
 
@@ -752,9 +855,7 @@ function sair(){
 }
 
 // ── ONLINE/OFFLINE ──
-async function alternarOnline(){
-  if(!online) ficarOnline(); else ficarOffline();
-}
+async function alternarOnline(){if(!online)ficarOnline();else ficarOffline();}
 
 function ficarOnline(){
   if(!posicaoAtual){
@@ -767,6 +868,8 @@ function ficarOnline(){
   _setOnline();
 }
 
+let posicaoAtual=null;
+
 async function _setOnline(){
   online=true;
   document.getElementById('toggle-btn').classList.add('on');
@@ -775,7 +878,7 @@ async function _setOnline(){
   await db.collection('cj_motoristas').doc(motorista.id).update({online:true,lat:posicaoAtual[0],lng:posicaoAtual[1]});
   iniciarGPS();
   escutarPedidos();
-  toast('Você está online! Aguardando corridas...');
+  toast('Você está online! 🟢');
 }
 
 async function ficarOffline(){
@@ -788,32 +891,28 @@ async function ficarOffline(){
   try{await db.collection('cj_motoristas').doc(motorista.id).update({online:false});}catch(e){}
 }
 
-// ── GPS TRACKING ──
+// ── GPS ──
 function iniciarGPS(){
-  if(gpsInterval) clearInterval(gpsInterval);
+  if(gpsInterval)clearInterval(gpsInterval);
   gpsInterval=setInterval(()=>{
-    if(!online||!motorista) return;
+    if(!online||!motorista)return;
     navigator.geolocation.getCurrentPosition(pos=>{
       posicaoAtual=[pos.coords.latitude,pos.coords.longitude];
       db.collection('cj_motoristas').doc(motorista.id).update({lat:pos.coords.latitude,lng:pos.coords.longitude}).catch(()=>{});
-      // Se em corrida, atualiza também na corrida
-      if(corridaAtiva){
-        db.collection('cj_corridas').doc(corridaAtiva.id).update({'motorista.lat':pos.coords.latitude,'motorista.lng':pos.coords.longitude}).catch(()=>{});
-      }
-      // Atualiza marcador no mapa
-      if(mapaHome&&marcadorPosicao) marcadorPosicao.setLatLng(posicaoAtual);
+      if(corridaAtiva) db.collection('cj_corridas').doc(corridaAtiva.id).update({'motorista.lat':pos.coords.latitude,'motorista.lng':pos.coords.longitude}).catch(()=>{});
+      if(mapaHome&&marcadorPosicao)marcadorPosicao.setLatLng(posicaoAtual);
+      if(mapaFull)mapaFull.setView(posicaoAtual);
     });
   },8000);
 }
 
 // ── ESCUTAR PEDIDOS ──
 function escutarPedidos(){
-  if(unsubPedidos) unsubPedidos();
+  if(unsubPedidos)unsubPedidos();
   unsubPedidos=db.collection('cj_corridas').where('status','==','aguardando').onSnapshot(snap=>{
     snap.docChanges().forEach(change=>{
       if(change.type==='added'&&!pedidoAtual&&!corridaAtiva){
-        const d=change.doc.data();
-        mostrarPedido(d);
+        mostrarPedido(change.doc.data());
       }
     });
   });
@@ -826,26 +925,21 @@ function mostrarPedido(corrida){
   document.getElementById('ped-origem').textContent=corrida.origem||'—';
   document.getElementById('ped-destino').textContent=corrida.destino||'—';
   document.getElementById('ped-valor').textContent=corrida.valorEstimado||'A combinar';
-
-  if(corrida.clienteFoto){
-    document.getElementById('ped-foto').innerHTML=`<img src="${corrida.clienteFoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
-  }else{
-    document.getElementById('ped-foto').textContent='👤';
-  }
-
+  if(corrida.clienteFoto) document.getElementById('ped-foto').innerHTML=`<img src="${corrida.clienteFoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+  else document.getElementById('ped-foto').textContent='👤';
   const obsEl=document.getElementById('ped-obs');
   if(corrida.obs){obsEl.textContent='📝 '+corrida.obs;obsEl.style.display='block';}
   else obsEl.style.display='none';
-
   document.getElementById('modal-pedido').classList.add('show');
   tocarSom('pedido');
+  notificarNovoPedido(corrida);
   iniciarTimerPedido();
 }
 
 function iniciarTimerPedido(){
   timerSeg=15;
   document.getElementById('ped-timer').textContent=timerSeg;
-  if(timerPedido) clearInterval(timerPedido);
+  if(timerPedido)clearInterval(timerPedido);
   timerPedido=setInterval(()=>{
     timerSeg--;
     document.getElementById('ped-timer').textContent=timerSeg;
@@ -860,44 +954,24 @@ function recusarCorrida(){
 }
 
 async function aceitarCorrida(){
-  if(!pedidoAtual) return;
+  if(!pedidoAtual)return;
   if(timerPedido){clearInterval(timerPedido);timerPedido=null;}
-
-  // Verifica créditos se sistema ativo
-  if(motorista.creditos!==undefined&&motorista.creditos<COMISSAO){
-    toast('Créditos insuficientes! Recarregue para continuar.');
-    document.getElementById('modal-pedido').classList.remove('show');
-    pedidoAtual=null;return;
-  }
-
   mostrarLoading(true);
   try{
     await db.collection('cj_corridas').doc(pedidoAtual.id).update({
       status:'aceita',
-      motorista:{
-        id:motorista.id,nome:motorista.nome,foto:motorista.foto||null,
-        fone:motorista.fone,placa:motorista.placa,veiculo:motorista.veiculo,
-        avaliacao:motorista.avaliacao||5.0,
-        lat:posicaoAtual?posicaoAtual[0]:null,
-        lng:posicaoAtual?posicaoAtual[1]:null
-      },
+      motorista:{id:motorista.id,nome:motorista.nome,foto:motorista.foto||null,fone:motorista.fone,placa:motorista.placa,veiculo:motorista.veiculo,avaliacao:motorista.avaliacao||5.0,lat:posicaoAtual?posicaoAtual[0]:null,lng:posicaoAtual?posicaoAtual[1]:null},
       acetoEm:firebase.firestore.FieldValue.serverTimestamp()
     });
-
-    corridaAtiva=pedidoAtual;
-    pedidoAtual=null;
+    corridaAtiva=pedidoAtual;pedidoAtual=null;
     document.getElementById('modal-pedido').classList.remove('show');
     if(unsubPedidos){unsubPedidos();unsubPedidos=null;}
-
-    // Preenche tela corrida
     document.getElementById('pass-nome').textContent=corridaAtiva.clienteNome||'Passageiro';
     document.getElementById('pass-destino').textContent='📍 '+corridaAtiva.destino;
     if(corridaAtiva.obs){document.getElementById('pass-obs').textContent='📝 '+corridaAtiva.obs;document.getElementById('pass-obs').style.display='block';}
-    if(corridaAtiva.clienteFoto){document.getElementById('pass-foto').innerHTML=`<img src="${corridaAtiva.clienteFoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;}
-
+    if(corridaAtiva.clienteFoto) document.getElementById('pass-foto').innerHTML=`<img src="${corridaAtiva.clienteFoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
     const fone=(corridaAtiva.clienteFone||'').replace(/\D/g,'');
-    document.getElementById('btn-zap-passageiro').onclick=()=>window.open('https://wa.me/55'+fone,'_blank');
-
+    document.getElementById('btn-zap-pass').onclick=()=>window.open('https://wa.me/55'+fone,'_blank');
     mostrarLoading(false);
     mostrarTela('tela-corrida');
     iniciarMapaCorrida();
@@ -905,9 +979,9 @@ async function aceitarCorrida(){
   }catch(e){mostrarLoading(false);toast('Erro ao aceitar: '+e.message);}
 }
 
-// ── MAPA HOME ──
+// ── MAPAS ──
 function iniciarMapaHome(){
-  if(mapaHome) return;
+  if(mapaHome)return;
   mapaHome=L.map('mapa-home',{zoomControl:false,attributionControl:false});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(mapaHome);
   mapaHome.setView([-22.9,-46.95],13);
@@ -915,117 +989,120 @@ function iniciarMapaHome(){
     navigator.geolocation.getCurrentPosition(pos=>{
       posicaoAtual=[pos.coords.latitude,pos.coords.longitude];
       mapaHome.setView(posicaoAtual,15);
-      const ic=L.divIcon({html:'<div style="background:#22c55e;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">🏍️</div>',className:'',iconSize:[36,36],iconAnchor:[18,18]});
+      const ic=L.divIcon({html:'<div style="background:#e8611a;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">🏍️</div>',className:'',iconSize:[36,36],iconAnchor:[18,18]});
       marcadorPosicao=L.marker(posicaoAtual,{icon:ic}).addTo(mapaHome);
     });
   }
 }
 
-// ── MAPA CORRIDA ──
 function iniciarMapaCorrida(){
   if(!mapaCorrida){
     mapaCorrida=L.map('mapa-corrida',{zoomControl:false,attributionControl:false});
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(mapaCorrida);
   }
-  if(posicaoAtual) mapaCorrida.setView(posicaoAtual,15);
+  if(posicaoAtual)mapaCorrida.setView(posicaoAtual,15);
+}
+
+let mapaFullAtivo=false;
+function abrirMapaFull(){
+  const modal=document.getElementById('modal-mapa-full');
+  modal.classList.add('show');
+  modal.style.display='flex';
+  if(!mapaFull){
+    mapaFull=L.map('mapa-full',{zoomControl:true,attributionControl:false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(mapaFull);
+    if(posicaoAtual){
+      mapaFull.setView(posicaoAtual,15);
+      const ic=L.divIcon({html:'<div style="background:#e8611a;width:40px;height:40px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">🏍️</div>',className:'',iconSize:[40,40],iconAnchor:[20,20]});
+      L.marker(posicaoAtual,{icon:ic}).addTo(mapaFull);
+    }
+    // Se em corrida, mostra destino
+    if(corridaAtiva&&corridaAtiva.destino){
+      L.popup().setLatLng(posicaoAtual||[-22.9,-46.95]).setContent('📍 '+corridaAtiva.destino).addTo(mapaFull);
+    }
+  }else{
+    setTimeout(()=>mapaFull.invalidateSize(),100);
+  }
+}
+
+function fecharMapaFull(){
+  const modal=document.getElementById('modal-mapa-full');
+  modal.classList.remove('show');
+  modal.style.display='none';
 }
 
 function abrirNavegacao(){
-  if(!corridaAtiva) return;
+  if(!corridaAtiva)return;
   const dest=encodeURIComponent(corridaAtiva.destino);
   window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`,'_blank');
 }
 
 // ── CONCLUIR ──
 async function concluirCorrida(){
-  const valorStr=document.getElementById('valor-corrida').value;
-  const valor=parseFloat(valorStr);
+  const valor=parseFloat(document.getElementById('valor-corrida').value);
   if(!valor||valor<=0){toast('Informe o valor da corrida');return;}
-  if(!corridaAtiva){toast('Nenhuma corrida ativa');return;}
-
+  if(!corridaAtiva)return;
   mostrarLoading(true);
   try{
-    await db.collection('cj_corridas').doc(corridaAtiva.id).update({
-      status:'concluida',
-      valor,
-      concluidoEm:firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // Descontar crédito e atualizar ganhos
+    await db.collection('cj_corridas').doc(corridaAtiva.id).update({status:'concluida',valor,concluidoEm:firebase.firestore.FieldValue.serverTimestamp()});
     const novoCredito=Math.max(0,(motorista.creditos||0)-COMISSAO);
     const novoGanhos=(motorista.totalGanhos||0)+valor;
     const novoCorridas=(motorista.totalCorridas||0)+1;
-    await db.collection('cj_motoristas').doc(motorista.id).update({
-      creditos:novoCredito,totalGanhos:novoGanhos,totalCorridas:novoCorridas
-    });
-
-    motorista.creditos=novoCredito;
-    motorista.totalGanhos=novoGanhos;
-    motorista.totalCorridas=novoCorridas;
+    await db.collection('cj_motoristas').doc(motorista.id).update({creditos:novoCredito,totalGanhos:novoGanhos,totalCorridas:novoCorridas});
+    motorista.creditos=novoCredito;motorista.totalGanhos=novoGanhos;motorista.totalCorridas=novoCorridas;
     localStorage.setItem('cj_motorista',JSON.stringify(motorista));
-
     corridaAtiva=null;
     document.getElementById('valor-corrida').value='';
     mostrarLoading(false);
-    toast('Corrida concluída! R$ '+valor.toFixed(2).replace('.',','));
+    toast('Corrida concluída! R$ '+valor.toFixed(2).replace('.',',') + ' 🎉');
     irPara('home');
-    if(online) escutarPedidos();
+    if(online)escutarPedidos();
   }catch(e){mostrarLoading(false);toast('Erro ao concluir.');}
 }
 
 async function cancelarCorridaMotorista(){
-  if(!corridaAtiva) return;
+  if(!corridaAtiva)return;
   mostrarLoading(true);
   try{
     await db.collection('cj_corridas').doc(corridaAtiva.id).update({status:'cancelada_motorista'});
-    corridaAtiva=null;
-    mostrarLoading(false);
-    irPara('home');
-    if(online) escutarPedidos();
+    corridaAtiva=null;mostrarLoading(false);irPara('home');
+    if(online)escutarPedidos();
   }catch(e){mostrarLoading(false);irPara('home');}
 }
 
 // ── CRÉDITOS ──
 async function atualizarCreditos(){
-  if(!motorista) return;
-  try{
-    const snap=await db.collection('cj_motoristas').doc(motorista.id).get();
-    if(snap.exists){
-      const d=snap.data();
-      motorista.creditos=d.creditos||0;
-      localStorage.setItem('cj_motorista',JSON.stringify(motorista));
-    }
-  }catch(e){}
+  if(!motorista)return;
+  try{const snap=await db.collection('cj_motoristas').doc(motorista.id).get();if(snap.exists){const d=snap.data();motorista.creditos=d.creditos||0;localStorage.setItem('cj_motorista',JSON.stringify(motorista));}}catch(e){}
   const cred=motorista.creditos||0;
-  const max=50;
   document.getElementById('creditos-val').textContent='R$ '+cred.toFixed(2).replace('.',',');
-  document.getElementById('creditos-prog').style.width=Math.min(100,(cred/max)*100)+'%';
-  document.getElementById('creditos-aviso').textContent=cred<5?'⚠️ Créditos baixos! Recarregue logo.':cred===0?'❌ Sem créditos. Contate o admin.':'✓ Créditos suficientes';
-  document.getElementById('creditos-geral').textContent='R$ '+cred.toFixed(2).replace('.',',');
-  document.getElementById('perfil-creditos-sub').textContent='R$ '+cred.toFixed(2).replace('.',',')+' disponível';
+  document.getElementById('creditos-prog').style.width=Math.min(100,(cred/50)*100)+'%';
+  document.getElementById('creditos-aviso').textContent=cred<=0?'❌ Sem créditos. Contate o admin.':cred<5?'⚠️ Créditos baixos!':'✓ Créditos OK';
+  document.getElementById('total-creditos').textContent='R$ '+cred.toFixed(0);
+  document.getElementById('perfil-creditos-sub').textContent='R$ '+cred.toFixed(2).replace('.',',');
 }
 
 // ── GANHOS ──
 async function carregarGanhosHome(){
-  if(!motorista) return;
+  if(!motorista)return;
   try{
     const hoje=new Date();hoje.setHours(0,0,0,0);
-    const snap=await db.collection('cj_corridas').where('motorista.id','==',motorista.id).where('status','==','concluida').orderBy('criadoEm','desc').get();
-    let ganhosHoje=0,corridasHoje=0,totalAval=0,numAval=0;
+    const snap=await db.collection('cj_corridas').where('motorista.id','==',motorista.id).where('status','==','concluida').get();
+    let gh=0,ch=0,ta=0,na=0;
     snap.docs.forEach(d=>{
       const c=d.data();
       const dt=c.criadoEm?c.criadoEm.toDate():new Date(0);
-      if(dt>=hoje){ganhosHoje+=(c.valor||0);corridasHoje++;}
-      if(c.avaliacaoPassageiro){totalAval+=c.avaliacaoPassageiro;numAval++;}
+      if(dt>=hoje){gh+=(c.valor||0);ch++;}
+      if(c.avaliacaoPassageiro){ta+=c.avaliacaoPassageiro;na++;}
     });
-    document.getElementById('ganhos-hoje').textContent='R$ '+ganhosHoje.toFixed(2).replace('.',',');
-    document.getElementById('corridas-hoje').textContent=corridasHoje;
-    document.getElementById('aval-media').textContent=numAval>0?'⭐ '+(totalAval/numAval).toFixed(1):'—';
+    document.getElementById('ganhos-hoje').textContent='R$ '+gh.toFixed(2).replace('.',',');
+    document.getElementById('corridas-hoje').textContent=ch;
+    document.getElementById('aval-media').textContent=na>0?'⭐ '+(ta/na).toFixed(1):'—';
   }catch(e){}
 }
 
 async function carregarHistHome(){
-  if(!motorista) return;
+  if(!motorista)return;
   try{
     const snap=await db.collection('cj_corridas').where('motorista.id','==',motorista.id).where('status','==','concluida').orderBy('criadoEm','desc').limit(3).get();
     const el=document.getElementById('lista-hist-home');
@@ -1035,46 +1112,45 @@ async function carregarHistHome(){
 }
 
 async function carregarGanhos(){
-  if(!motorista) return;
+  if(!motorista)return;
   const el=document.getElementById('lista-corridas-ganhos');
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);">Carregando...</div>';
   try{
     const snap=await db.collection('cj_corridas').where('motorista.id','==',motorista.id).orderBy('criadoEm','desc').limit(30).get();
-    document.getElementById('total-ganhos-geral').textContent='R$ '+(motorista.totalGanhos||0).toFixed(2).replace('.',',');
-    document.getElementById('total-corridas-geral').textContent=motorista.totalCorridas||0;
-
+    document.getElementById('total-ganhos').textContent='R$ '+(motorista.totalGanhos||0).toFixed(2).replace('.',',');
+    document.getElementById('total-corridas').textContent=motorista.totalCorridas||0;
     if(snap.empty){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);">Nenhuma corrida ainda</div>';return;}
     el.innerHTML=snap.docs.map(d=>{
       const c=d.data();
       const sc=c.status==='concluida'?'s-concluida':'s-cancelada';
       const sl=c.status==='concluida'?'CONCLUÍDA':'CANCELADA';
-      return`<div class="corrida-hist-card"><div class="corrida-hist-top"><div class="corrida-hist-status ${sc}">${sl}</div><div class="corrida-hist-data">${formatarData(c.criadoEm)}</div></div><div class="corrida-hist-rota">${c.origem} → ${c.destino}</div><div class="corrida-hist-bottom"><div class="corrida-hist-passageiro">👤 ${c.clienteNome||'Anônimo'}</div><div class="corrida-hist-valor">R$ ${parseFloat(c.valor||0).toFixed(2).replace('.',',')}</div></div></div>`;
+      return`<div class="corrida-hist-card"><div class="corrida-hist-top"><div class="corrida-hist-status ${sc}">${sl}</div><div class="corrida-hist-data">${formatarData(c.criadoEm)}</div></div><div class="corrida-hist-rota">${c.origem||'—'} → ${c.destino||'—'}</div><div class="corrida-hist-bottom"><div class="corrida-hist-passageiro">👤 ${c.clienteNome||'Anônimo'}</div><div class="corrida-hist-valor">R$ ${parseFloat(c.valor||0).toFixed(2).replace('.',',')}</div></div></div>`;
     }).join('');
   }catch(e){el.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);">Erro ao carregar</div>';}
 }
 
 // ── HOME / PERFIL ──
 function atualizarHome(){
-  if(!motorista) return;
+  if(!motorista)return;
   const h=new Date().getHours();
   document.getElementById('saudacao').textContent=h<12?'Bom dia!':h<18?'Boa tarde!':'Boa noite!';
   document.getElementById('home-nome').textContent=motorista.nome||'Motorista';
   const av=document.getElementById('home-avatar');
-  if(motorista.foto) av.innerHTML=`<img src="${motorista.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+  if(motorista.foto)av.innerHTML=`<img src="${motorista.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
   else av.innerHTML=`<div class="avatar-initials">${(motorista.nome||'M')[0].toUpperCase()}</div>`;
 }
 
 function atualizarPerfil(){
-  if(!motorista) return;
+  if(!motorista)return;
   document.getElementById('perfil-nome').textContent=motorista.nome||'—';
   document.getElementById('perfil-fone').textContent=motorista.fone||'—';
   const av=document.getElementById('perfil-avatar');
-  if(motorista.foto) av.innerHTML=`<img src="${motorista.foto}"/>`;
+  if(motorista.foto)av.innerHTML=`<img src="${motorista.foto}"/>`;
   else av.textContent=(motorista.nome||'M')[0].toUpperCase();
   const veiculos={'moto':'🏍️ Moto','carro':'🚗 Carro','van':'🚐 Van'};
   document.getElementById('pv-tipo').textContent=veiculos[motorista.veiculo]||motorista.veiculo||'—';
   document.getElementById('pv-placa').textContent=motorista.placa||'—';
-  document.getElementById('pv-aval').textContent=motorista.avaliacao?'⭐ '+motorista.avaliacao.toFixed(1):'Novo';
+  document.getElementById('pv-aval').textContent=motorista.avaliacao?'⭐ '+parseFloat(motorista.avaliacao).toFixed(1):'Novo';
   document.getElementById('perfil-ganhos-sub').textContent=(motorista.totalCorridas||0)+' corridas · R$ '+(motorista.totalGanhos||0).toFixed(2).replace('.',',');
   atualizarCreditos();
 }
