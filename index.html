@@ -154,6 +154,8 @@ input[type=file]{display:none;}
 .valor-input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:26px;font-weight:900;font-family:inherit;width:100%;}
 .btn-concluir{width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--laranja),var(--dourado));border:none;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;}
 .btn-cancelar-corrida{width:100%;padding:12px;border-radius:14px;background:transparent;border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.etapa{flex-shrink:0;padding:8px 14px;border-radius:20px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.etapa.ativa{background:linear-gradient(135deg,var(--laranja),var(--dourado));color:#fff;border-color:transparent;}
 #tela-ganhos{background:var(--bg);padding-bottom:80px;}
 .ganhos-header{background:linear-gradient(180deg,#1a2a4a,transparent);padding:16px 20px 20px;padding-top:max(16px,calc(var(--sat)+8px));}
 .ganhos-header h2{font-size:22px;font-weight:800;color:#fff;}
@@ -379,6 +381,24 @@ input[type=file]{display:none;}
     </div>
     <div class="valor-input-wrap">
       <div class="valor-input-label">Valor cobrado</div>
+      <div class="valor-input-row"><div class="valor-prefix">R$</div><input type="number" class="valor-input" id="valor-corrida" placeholder="0,00" step="0.50" min="0"/></div>
+    </div>
+    <!-- STATUS ETAPAS -->
+    <div id="etapas-corrida" style="display:flex;gap:8px;margin-bottom:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;">
+      <div class="etapa ativa" id="etapa-caminho" onclick="mudarStatus('a_caminho')">A caminho</div>
+      <div class="etapa" id="etapa-cheguei" onclick="mudarStatus('cheguei')">Cheguei</div>
+      <div class="etapa" id="etapa-no-carro" onclick="mudarStatus('no_carro')">No carro</div>
+      <div class="etapa" id="etapa-destino" onclick="mudarStatus('a_destino')">Ao destino</div>
+    </div>
+
+    <!-- CONTADOR DE ESPERA -->
+    <div id="contador-espera" style="display:none;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:14px;padding:10px 14px;margin-bottom:10px;text-align:center;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Aguardando passageiro</div>
+      <div id="contador-espera-num" style="font-size:28px;font-weight:900;color:var(--dourado);">0:00</div>
+    </div>
+
+    <div class="valor-input-wrap">
+      <div class="valor-input-label">Valor cobrado <span id="valor-editavel-badge" style="font-size:10px;color:var(--verde);margin-left:6px;">✏️ editável</span></div>
       <div class="valor-input-row"><div class="valor-prefix">R$</div><input type="number" class="valor-input" id="valor-corrida" placeholder="0,00" step="0.50" min="0"/></div>
     </div>
     <button class="btn-concluir" onclick="concluirCorrida()">Concluir corrida</button>
@@ -666,14 +686,95 @@ async function pedirPermissaoNotificacao(){
 }
 
 function notificarNovoPedido(corrida){
-  if(Notification.permission==="granted"){try{new Notification("Novo pedido!",{body:(corrida.clienteNome||"Passageiro")+" - "+corrida.destino,icon:LOGO_URL,tag:"corrida-nova",vibrate:[200,100,200]});}catch(e){}}
+  if(Notification.permission==="granted"){
+    try{
+      const nome=corrida.clienteNome||"Passageiro";
+      const dest=corrida.destino||"destino";
+      const val=corrida.valorEstimado||"";
+      new Notification("Corrida Já! Nova corrida",{
+        body:`${nome} → ${dest}${val?" • "+val:""}`,
+        icon:LOGO_URL,tag:"corrida-nova",vibrate:[300,100,300,100,300]
+      });
+    }catch(e){}
+  }
+}
+
+// ── SISTEMA DE SOM ──
+let _audioCtx=null;
+let _loopPedido=null;
+let _loopVez=0;
+
+function getACtx(){
+  if(!_audioCtx)_audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(_audioCtx.state==='suspended')_audioCtx.resume();
+  return _audioCtx;
+}
+
+function nota(freq,start,dur,vol=0.9,type='sine'){
+  try{
+    const c=getACtx();
+    const o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.type=type;o.frequency.setValueAtTime(freq,c.currentTime+start);
+    g.gain.setValueAtTime(0,c.currentTime+start);
+    g.gain.linearRampToValueAtTime(vol,c.currentTime+start+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+start+dur);
+    o.start(c.currentTime+start);o.stop(c.currentTime+start+dur+0.05);
+  }catch(e){}
+}
+
+function falar(texto){
+  try{
+    if(!('speechSynthesis'in window))return;
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(texto);
+    u.lang='pt-BR';u.rate=1.0;u.pitch=1.1;u.volume=1;
+    const v=window.speechSynthesis.getVoices().find(x=>x.lang.startsWith('pt'));
+    if(v)u.voice=v;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function som5(){
+  [440,554,659,784,1047].forEach((f,i)=>nota(f,i*0.1,0.18,0.95,'sine'));
+}
+function som4(){
+  nota(880,0,0.12,0.95,'square');
+  nota(880,0.18,0.12,0.95,'square');
+  nota(880,0.36,0.12,0.95,'square');
+}
+
+function iniciarSomPedido(corrida){
+  pararSomPedido();
+  _loopVez=0;
+  const nome=corrida.clienteNome||'Passageiro';
+  const dest=corrida.destino||'destino';
+  const val=corrida.valorEstimado||'';
+  const fala=`Corrida Já! ${nome} solicitou uma corrida para ${dest}. ${val?'Valor estimado '+val:''}`;
+
+  function ciclo(){
+    if(_loopVez%2===0){som5();}else{som4();}
+    if(_loopVez===0){setTimeout(()=>falar(fala),600);}
+    _loopVez++;
+  }
+  ciclo();
+  _loopPedido=setInterval(ciclo,2800);
+}
+
+function pararSomPedido(){
+  if(_loopPedido){clearInterval(_loopPedido);_loopPedido=null;}
+  try{window.speechSynthesis.cancel();}catch(e){}
+  _loopVez=0;
 }
 
 function tocarSom(tipo){
+  if(tipo==='pedido')return; // controlado por iniciarSomPedido
   try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const freqs=tipo==="pedido"?[880,1100,880,1100,880]:[523,659,784];
-    freqs.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=f;o.type="sine";const t=ctx.currentTime+i*0.18;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.4,t+0.05);g.gain.linearRampToValueAtTime(0,t+0.18);o.start(t);o.stop(t+0.2);});
+    const freqs=tipo==='aceite'?[523,659,784]:tipo==='chegou'?[784,1047,1318]:[659,784];
+    const c=getACtx();
+    freqs.forEach((f,i)=>nota(f,i*0.15,0.2,0.7,'sine'));
+    if(tipo==='aceite')setTimeout(()=>falar('Corrida Já! Corrida aceita! Boa viagem!'),500);
+    if(tipo==='chegou')setTimeout(()=>falar('Corrida Já! Você chegou ao local. Aguardando passageiro.'),500);
   }catch(e){}
 }
 
@@ -783,16 +884,18 @@ function mostrarPedido(corrida){
   const obsEl=document.getElementById("ped-obs");
   if(corrida.obs){obsEl.textContent=corrida.obs;obsEl.style.display="block";}else obsEl.style.display="none";
   document.getElementById("modal-pedido").classList.add("show");
-  tocarSom("pedido");notificarNovoPedido(corrida);iniciarTimerPedido();
+  iniciarSomPedido(corrida);
+  notificarNovoPedido(corrida);
+  iniciarTimerPedido();
 }
 function iniciarTimerPedido(){
-  timerSeg=15;document.getElementById("ped-timer").textContent=timerSeg;
+  timerSeg=30;document.getElementById("ped-timer").textContent=timerSeg;
   if(timerPedido)clearInterval(timerPedido);
   timerPedido=setInterval(()=>{timerSeg--;document.getElementById("ped-timer").textContent=timerSeg;if(timerSeg<=0){clearInterval(timerPedido);recusarCorrida();}},1000);
 }
-function recusarCorrida(){if(timerPedido){clearInterval(timerPedido);timerPedido=null;}document.getElementById("modal-pedido").classList.remove("show");pedidoAtual=null;}
+function recusarCorrida(){if(timerPedido){clearInterval(timerPedido);timerPedido=null;}pararSomPedido();document.getElementById("modal-pedido").classList.remove("show");pedidoAtual=null;}
 async function aceitarCorrida(){
-  if(!pedidoAtual)return;if(timerPedido){clearInterval(timerPedido);timerPedido=null;}
+  if(!pedidoAtual)return;if(timerPedido){clearInterval(timerPedido);timerPedido=null;}pararSomPedido();
   mostrarLoading(true);
   try{
     await db.collection("cj_corridas").doc(pedidoAtual.id).update({status:"aceita",motorista:{id:motorista.id,nome:motorista.nome,foto:motorista.foto||null,fone:motorista.fone,placa:motorista.placa,veiculo:motorista.veiculo,avaliacao:motorista.avaliacao||5.0,lat:posicaoAtual?posicaoAtual[0]:null,lng:posicaoAtual?posicaoAtual[1]:null},acetoEm:firebase.firestore.FieldValue.serverTimestamp()});
@@ -801,6 +904,21 @@ async function aceitarCorrida(){
     if(unsubPedidos){unsubPedidos();unsubPedidos=null;}
     document.getElementById("pass-nome").textContent=corridaAtiva.clienteNome||"Passageiro";
     document.getElementById("pass-destino").textContent=corridaAtiva.destino;
+    // Preencher valor automaticamente
+    statusAtual='a_caminho';
+    document.getElementById('etapa-caminho').classList.add('ativa');
+    document.getElementById('etapa-cheguei').classList.remove('ativa');
+    document.getElementById('etapa-no-carro').classList.remove('ativa');
+    document.getElementById('etapa-destino').classList.remove('ativa');
+    pararContadorEspera();
+    if(corridaAtiva.origemLat&&corridaAtiva.origemLng&&posicaoAtual){
+      const km=distKm(posicaoAtual[0],posicaoAtual[1],corridaAtiva.origemLat,corridaAtiva.origemLng);
+      const val=calcularValorPorDistancia(km);
+      document.getElementById('valor-corrida').value=val.toFixed(2);
+    } else if(corridaAtiva.valorEstimado){
+      const v=parseFloat(corridaAtiva.valorEstimado.replace('R$','').replace(',','.').trim());
+      if(!isNaN(v))document.getElementById('valor-corrida').value=v.toFixed(2);
+    }
     if(corridaAtiva.obs){document.getElementById("pass-obs").textContent=corridaAtiva.obs;document.getElementById("pass-obs").style.display="block";}
     if(corridaAtiva.clienteFoto)document.getElementById("pass-foto").innerHTML=`<img src="${corridaAtiva.clienteFoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
     const fone=(corridaAtiva.clienteFone||"").replace(/\D/g,"");
@@ -808,6 +926,67 @@ async function aceitarCorrida(){
     mostrarLoading(false);mostrarTela("tela-corrida");iniciarMapaCorrida();tocarSom("aceite");
   }catch(e){mostrarLoading(false);toast("Erro ao aceitar: "+e.message);}
 }
+// Calcular valor pela distância
+function calcularValorPorDistancia(km){
+  const tabela=[{ate:2,preco:8},{ate:5,preco:12},{ate:10,preco:18},{ate:20,preco:25},{ate:999,preco:35}];
+  for(const t of tabela){if(km<=t.ate)return t.preco;}
+  return 35;
+}
+
+function distKm(lat1,lng1,lat2,lng2){
+  const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// Contador de espera
+let _contEspera=null,_segEspera=0;
+function iniciarContadorEspera(){
+  _segEspera=0;
+  document.getElementById('contador-espera').style.display='block';
+  if(_contEspera)clearInterval(_contEspera);
+  _contEspera=setInterval(()=>{
+    _segEspera++;
+    const m=Math.floor(_segEspera/60),s=_segEspera%60;
+    document.getElementById('contador-espera-num').textContent=m+':'+(s<10?'0':'')+s;
+  },1000);
+}
+function pararContadorEspera(){
+  if(_contEspera){clearInterval(_contEspera);_contEspera=null;}
+  document.getElementById('contador-espera').style.display='none';
+}
+
+// Etapas de status
+let statusAtual='a_caminho';
+function mudarStatus(status){
+  statusAtual=status;
+  const etapas=['caminho','cheguei','no-carro','destino'];
+  const statusMap={'a_caminho':'caminho','cheguei':'cheguei','no_carro':'no-carro','a_destino':'destino'};
+  const idx=etapas.indexOf(statusMap[status]);
+  etapas.forEach((e,i)=>{
+    const el=document.getElementById('etapa-'+e);
+    if(el)el.classList.toggle('ativa',i<=idx);
+  });
+
+  const textos={'a_caminho':'A caminho do passageiro','cheguei':'Cheguei no local!','no_carro':'Passageiro no carro','a_destino':'A caminho do destino'};
+  document.getElementById('corrida-status-txt').textContent=textos[status]||status;
+
+  if(status==='cheguei'){
+    iniciarContadorEspera();
+    tocarSom('chegou');
+    // Notificar passageiro
+    if(corridaAtiva){
+      db.collection('cj_corridas').doc(corridaAtiva.id).update({status:'motorista_chegou'}).catch(()=>{});
+    }
+  } else {
+    pararContadorEspera();
+  }
+
+  if(corridaAtiva){
+    db.collection('cj_corridas').doc(corridaAtiva.id).update({statusEtapa:status}).catch(()=>{});
+  }
+}
+
 function iniciarMapaHome(){
   if(mapaHome)return;
   mapaHome=L.map("mapa-home",{zoomControl:false,attributionControl:false});
@@ -816,7 +995,8 @@ function iniciarMapaHome(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos=>{
       posicaoAtual=[pos.coords.latitude,pos.coords.longitude];mapaHome.setView(posicaoAtual,15);
-      const ic=L.divIcon({html:"<div style=\"background:#e8611a;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-size:18px;\">M</div>",className:"",iconSize:[36,36],iconAnchor:[18,18]});
+      const carSvg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"><rect x="2" y="14" width="36" height="18" rx="6" fill="#e8611a"/><rect x="8" y="7" width="22" height="12" rx="5" fill="#fcd34d"/><circle cx="10" cy="33" r="5" fill="#1a0a00"/><circle cx="10" cy="33" r="2.5" fill="#f59e0b"/><circle cx="30" cy="33" r="5" fill="#1a0a00"/><circle cx="30" cy="33" r="2.5" fill="#f59e0b"/><rect x="24" y="9" width="5" height="7" rx="2" fill="#fef3c7" opacity="0.8"/><line x1="1" y1="19" x2="7" y2="19" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round"/><line x1="2" y1="23" x2="7" y2="23" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+      const ic=L.divIcon({html:`<div style="filter:drop-shadow(0 3px 6px rgba(0,0,0,0.4));">${carSvg}</div>`,className:"",iconSize:[40,40],iconAnchor:[20,35]});
       marcadorPosicao=L.marker(posicaoAtual,{icon:ic}).addTo(mapaHome);
     });
   }
@@ -831,7 +1011,7 @@ function abrirMapaFull(){
     mapaFull=L.map("mapa-full",{zoomControl:true,attributionControl:false});
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaFull);
     const pos=posicaoAtual||[-22.9,-46.95];mapaFull.setView(pos,15);
-    if(posicaoAtual){const ic=L.divIcon({html:"<div style=\"background:#e8611a;width:40px;height:40px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-size:20px;\">M</div>",className:"",iconSize:[40,40],iconAnchor:[20,20]});L.marker(posicaoAtual,{icon:ic}).addTo(mapaFull);}
+    if(posicaoAtual){const carSvgF=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40"><rect x="2" y="14" width="36" height="18" rx="6" fill="#e8611a"/><rect x="8" y="7" width="22" height="12" rx="5" fill="#fcd34d"/><circle cx="10" cy="33" r="5" fill="#1a0a00"/><circle cx="10" cy="33" r="2.5" fill="#f59e0b"/><circle cx="30" cy="33" r="5" fill="#1a0a00"/><circle cx="30" cy="33" r="2.5" fill="#f59e0b"/></svg>`;const ic=L.divIcon({html:`<div style="filter:drop-shadow(0 3px 6px rgba(0,0,0,0.4));">${carSvgF}</div>`,className:"",iconSize:[40,40],iconAnchor:[20,35]});L.marker(posicaoAtual,{icon:ic}).addTo(mapaFull);}
   }else{setTimeout(()=>mapaFull.invalidateSize(),100);}
 }
 function fecharMapaFull(){document.getElementById("modal-mapa-full").style.display="none";}
@@ -845,12 +1025,12 @@ async function concluirCorrida(){
     const nc=Math.max(0,(motorista.creditos||0)-COMISSAO);const ng=(motorista.totalGanhos||0)+valor;const nco=(motorista.totalCorridas||0)+1;
     await db.collection("cj_motoristas").doc(motorista.id).update({creditos:nc,totalGanhos:ng,totalCorridas:nco});
     motorista.creditos=nc;motorista.totalGanhos=ng;motorista.totalCorridas=nco;localStorage.setItem("cj_motorista",JSON.stringify(motorista));
-    corridaAtiva=null;document.getElementById("valor-corrida").value="";mostrarLoading(false);toast("Corrida concluida!");irPara("home");if(online)escutarPedidos();
+    pararContadorEspera();corridaAtiva=null;document.getElementById("valor-corrida").value="";mostrarLoading(false);toast("Corrida concluida!");irPara("home");if(online)escutarPedidos();
   }catch(e){mostrarLoading(false);toast("Erro ao concluir.");}
 }
 async function cancelarCorridaMotorista(){
   if(!corridaAtiva)return;mostrarLoading(true);
-  try{await db.collection("cj_corridas").doc(corridaAtiva.id).update({status:"cancelada_motorista"});corridaAtiva=null;mostrarLoading(false);irPara("home");if(online)escutarPedidos();}catch(e){mostrarLoading(false);irPara("home");}
+  try{await db.collection("cj_corridas").doc(corridaAtiva.id).update({status:"cancelada_motorista"});pararContadorEspera();corridaAtiva=null;mostrarLoading(false);irPara("home");if(online)escutarPedidos();}catch(e){mostrarLoading(false);irPara("home");}
 }
 async function atualizarCreditos(){
   if(!motorista)return;
