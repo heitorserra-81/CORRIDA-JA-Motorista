@@ -563,10 +563,8 @@ window.addEventListener("load",()=>{
     if(s){motorista=JSON.parse(s);irPara("home");}
     else mostrarTela("tela-login");
   }
-  // Tenta em 800ms, se Firebase não carregou tenta de novo
-  setTimeout(()=>{
-    try{if(db)iniciar();}catch(e){setTimeout(iniciar,600);}
-  },800);
+  // Sai da splash imediatamente, Firebase carrega em paralelo
+  iniciar();
 });
 
 function mostrarTela(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("ativo"));document.getElementById(id).classList.add("ativo");}
