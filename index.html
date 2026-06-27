@@ -860,7 +860,11 @@ async function entrar(){
 }
 
 function sair(){ficarOffline();localStorage.removeItem("cj_motorista");motorista=null;mostrarTela("tela-login");}
-async function alternarOnline(){if(!online)ficarOnline();else ficarOffline();}
+async function alternarOnline(){
+  // Desbloquear AudioContext no iPhone (precisa de interação)
+  try{getACtx();}catch(e){}
+  if(!online)ficarOnline();else ficarOffline();
+}
 function ficarOnline(){
   if(!posicaoAtual){navigator.geolocation.getCurrentPosition(pos=>{posicaoAtual=[pos.coords.latitude,pos.coords.longitude];_setOnline();},()=>toast("Ative o GPS para ficar online"));return;}
   _setOnline();
@@ -895,7 +899,36 @@ function iniciarGPS(){
 function escutarPedidos(){
   if(unsubPedidos)unsubPedidos();
   unsubPedidos=db.collection("cj_corridas").where("status","==","aguardando").onSnapshot(snap=>{
-    snap.docChanges().forEach(change=>{if(change.type==="added"&&!pedidoAtual&&!corridaAtiva)mostrarPedido(change.doc.data());});
+    snap.docChanges().forEach(change=>{
+      if(change.type==="added"&&!pedidoAtual&&!corridaAtiva){
+        mostrarPedido(change.doc.data());
+      }
+      // Se pedido que estava mostrando foi cancelado pelo passageiro
+      if(change.type==="modified"&&pedidoAtual&&change.doc.id===pedidoAtual.id){
+        const d=change.doc.data();
+        if(d.status==="cancelada_cliente"){
+          recusarCorrida();
+          toast("Passageiro cancelou o pedido.");
+        }
+      }
+    });
+  });
+}
+
+// Escutar corrida ativa para detectar cancelamento do passageiro
+let unsubCorridaAtiva=null;
+function escutarCorridaAtiva(id){
+  if(unsubCorridaAtiva)unsubCorridaAtiva();
+  unsubCorridaAtiva=db.collection("cj_corridas").doc(id).onSnapshot(snap=>{
+    const d=snap.data();if(!d)return;
+    if(d.status==="cancelada_cliente"){
+      if(unsubCorridaAtiva){unsubCorridaAtiva();unsubCorridaAtiva=null;}
+      pararContadorEspera();
+      corridaAtiva=null;
+      toast("Passageiro cancelou a corrida!");
+      irPara("home");
+      if(online)escutarPedidos();
+    }
   });
 }
 function mostrarPedido(corrida){
@@ -904,7 +937,7 @@ function mostrarPedido(corrida){
   document.getElementById("ped-tipo").textContent=corrida.clienteTipo==="anonimo"?"Sem cadastro":"Cadastrado";
   document.getElementById("ped-origem").textContent=corrida.origem||"--";
   document.getElementById("ped-destino").textContent=corrida.destino||"--";
-  document.getElementById("ped-valor").textContent=corrida.valorEstimado||"A combinar";
+  document.getElementById("ped-valor").textContent=corrida.valorEstimado||"Ver destino";
   if(corrida.clienteFoto)document.getElementById("ped-foto").innerHTML=`<img src="${corrida.clienteFoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
   else document.getElementById("ped-foto").textContent="U";
   const obsEl=document.getElementById("ped-obs");
@@ -949,7 +982,7 @@ async function aceitarCorrida(){
     if(corridaAtiva.clienteFoto)document.getElementById("pass-foto").innerHTML=`<img src="${corridaAtiva.clienteFoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
     const fone=(corridaAtiva.clienteFone||"").replace(/\D/g,"");
     document.getElementById("btn-zap-pass").onclick=()=>window.open("https://wa.me/55"+fone,"_blank");
-    mostrarLoading(false);mostrarTela("tela-corrida");iniciarMapaCorrida();tocarSom("aceite");
+    mostrarLoading(false);mostrarTela("tela-corrida");iniciarMapaCorrida();tocarSom("aceite");escutarCorridaAtiva(corridaAtiva.id);
   }catch(e){mostrarLoading(false);toast("Erro ao aceitar: "+e.message);}
 }
 // Calcular valor pela distância
@@ -1028,8 +1061,19 @@ function iniciarMapaHome(){
   }
 }
 function iniciarMapaCorrida(){
-  if(!mapaCorrida){mapaCorrida=L.map("mapa-corrida",{zoomControl:false,attributionControl:false});L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaCorrida);}
+  if(!mapaCorrida){
+    mapaCorrida=L.map("mapa-corrida",{zoomControl:false,attributionControl:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaCorrida);
+  }
   if(posicaoAtual)mapaCorrida.setView(posicaoAtual,15);
+  // Mostrar pessoinha laranja na posição do passageiro
+  if(corridaAtiva&&corridaAtiva.origemLat&&corridaAtiva.origemLng){
+    const posPass=[corridaAtiva.origemLat,corridaAtiva.origemLng];
+    const pessoaSvg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 50" width="40" height="50"><circle cx="20" cy="10" r="9" fill="#e8611a" stroke="#fff" stroke-width="2"/><path d="M6 45 Q6 28 20 26 Q34 28 34 45Z" fill="#e8611a" stroke="#fff" stroke-width="2"/><text x="20" y="50" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#e8611a">Passageiro</text></svg>`;
+    const icPass=L.divIcon({html:`<div style="filter:drop-shadow(0 3px 6px rgba(0,0,0,0.4));">${pessoaSvg}</div>`,className:"",iconSize:[40,50],iconAnchor:[20,45]});
+    L.marker(posPass,{icon:icPass}).addTo(mapaCorrida);
+    mapaCorrida.setView(posPass,15);
+  }
 }
 function abrirMapaFull(){
   const modal=document.getElementById("modal-mapa-full");modal.style.display="flex";
@@ -1051,7 +1095,7 @@ async function concluirCorrida(){
     const nc=Math.max(0,(motorista.creditos||0)-COMISSAO);const ng=(motorista.totalGanhos||0)+valor;const nco=(motorista.totalCorridas||0)+1;
     await db.collection("cj_motoristas").doc(motorista.id).update({creditos:nc,totalGanhos:ng,totalCorridas:nco});
     motorista.creditos=nc;motorista.totalGanhos=ng;motorista.totalCorridas=nco;localStorage.setItem("cj_motorista",JSON.stringify(motorista));
-    pararContadorEspera();corridaAtiva=null;document.getElementById("valor-corrida").value="";mostrarLoading(false);toast("Corrida concluida!");irPara("home");if(online)escutarPedidos();
+    if(unsubCorridaAtiva){unsubCorridaAtiva();unsubCorridaAtiva=null;}pararContadorEspera();corridaAtiva=null;document.getElementById("valor-corrida").value="";mostrarLoading(false);toast("Corrida concluida!");irPara("home");if(online)escutarPedidos();
   }catch(e){mostrarLoading(false);toast("Erro ao concluir.");}
 }
 async function cancelarCorridaMotorista(){
