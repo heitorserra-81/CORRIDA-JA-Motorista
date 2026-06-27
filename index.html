@@ -557,14 +557,18 @@ function tocarSom(tipo){
 }
 
 window.addEventListener("load",()=>{
-  // Mostrar login/home assim que possível, sem esperar timer longo
-  function iniciar(){
-    const s=localStorage.getItem("cj_motorista");
-    if(s){motorista=JSON.parse(s);irPara("home");}
-    else mostrarTela("tela-login");
+  const s=localStorage.getItem("cj_motorista");
+  if(s){
+    motorista=JSON.parse(s);
+    // Mostra a tela home imediatamente sem chamar irPara (que precisa do Firebase)
+    mostrarTela("tela-home");
+    // Carrega os dados depois que Firebase estiver pronto
+    setTimeout(()=>{
+      try{atualizarHome();atualizarCreditos();carregarGanhosHome();carregarHistHome();iniciarMapaHome();}catch(e){}
+    },1500);
+  } else {
+    mostrarTela("tela-login");
   }
-  // Sai da splash imediatamente, Firebase carrega em paralelo
-  iniciar();
 });
 
 function mostrarTela(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("ativo"));document.getElementById(id).classList.add("ativo");}
