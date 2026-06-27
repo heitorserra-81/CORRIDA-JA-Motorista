@@ -569,7 +569,7 @@ async function confirmarRecorte(){
   ctx.save();ctx.beginPath();ctx.arc(100,100,100,0,Math.PI*2);ctx.clip();
   ctx.drawImage(canvas,0,0,280,280,0,0,200,200);
   ctx.restore();
-  const dataUrl=out.toDataURL('image/jpeg',0.85);
+  const dataUrl=out.toDataURL('image/jpeg',0.75);
   document.getElementById('crop-overlay').style.display='none';
   cropImg=null;
 
@@ -580,9 +580,8 @@ async function confirmarRecorte(){
   } else if(cropContexto==='perfil'){
     mostrarLoading(true);
     try{
-      const url=await uploadFotoSupabase(dataUrl,'mot_'+motorista.id+'.jpg');
-      await db.collection('cj_motoristas').doc(motorista.id).update({foto:url});
-      motorista.foto=url;
+      await db.collection('cj_motoristas').doc(motorista.id).update({foto:dataUrl});
+      motorista.foto=dataUrl;
       localStorage.setItem('cj_motorista',JSON.stringify(motorista));
       atualizarPerfil();atualizarHome();
       mostrarLoading(false);toast('Foto atualizada! ✓');
@@ -714,11 +713,7 @@ async function cadastrar(){
   mostrarLoading(true);
   try{
     const id="mot_"+Date.now();
-    let fotoUrl=null;
-    if(fotoFinalCad){
-      try{fotoUrl=await uploadFotoSupabase(fotoFinalCad,"mot_"+Date.now()+".jpg");}catch(e){console.log("Foto err:",e);}
-    }
-    const dados={id,nome,fone,cpf,veiculo,placa,foto:fotoUrl||null,online:false,creditos:0,totalCorridas:0,totalGanhos:0,avaliacao:null,criadoEm:new Date().toISOString()};
+    const dados={id,nome,fone,cpf,veiculo,placa,foto:fotoFinalCad||null,online:false,creditos:0,totalCorridas:0,totalGanhos:0,avaliacao:null,criadoEm:new Date().toISOString()};
     await db.collection("cj_motoristas").doc(id).set(dados);
     motorista=dados;localStorage.setItem("cj_motorista",JSON.stringify(motorista));
     mostrarLoading(false);irPara("home");pedirPermissaoNotificacao();
