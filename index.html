@@ -556,7 +556,18 @@ function tocarSom(tipo){
   }catch(e){}
 }
 
-window.addEventListener("load",()=>{setTimeout(()=>{const s=localStorage.getItem("cj_motorista");if(s){motorista=JSON.parse(s);irPara("home");}else mostrarTela("tela-login");},2200);});
+window.addEventListener("load",()=>{
+  // Mostrar login/home assim que possível, sem esperar timer longo
+  function iniciar(){
+    const s=localStorage.getItem("cj_motorista");
+    if(s){motorista=JSON.parse(s);irPara("home");}
+    else mostrarTela("tela-login");
+  }
+  // Tenta em 800ms, se Firebase não carregou tenta de novo
+  setTimeout(()=>{
+    try{if(db)iniciar();}catch(e){setTimeout(iniciar,600);}
+  },800);
+});
 
 function mostrarTela(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("ativo"));document.getElementById(id).classList.add("ativo");}
 function irPara(dest){
