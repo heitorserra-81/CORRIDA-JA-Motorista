@@ -94,7 +94,7 @@ input[type=file]{display:none;}
 
 /* HOME */
 #tela-home{padding-bottom:24px;}
-.home-header{padding:20px 18px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 16px);background:linear-gradient(180deg,rgba(26,42,74,0.96) 0%,rgba(15,26,46,0.7) 70%,transparent 100%);}
+.home-header{padding:20px 18px 14px;padding-top:calc(env(safe-area-inset-top,0px) + 46px);background:linear-gradient(180deg,rgba(26,42,74,0.96) 0%,rgba(15,26,46,0.7) 70%,transparent 100%);}
 .home-header-top{display:flex;align-items:center;gap:10px;position:relative;min-height:72px;}
 .avatar{width:48px;height:48px;border-radius:50%;background:var(--card2);border:2px solid var(--dourado);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;font-size:14px;font-weight:700;color:var(--dourado);}
 .avatar img{width:100%;height:100%;object-fit:cover;}
@@ -637,7 +637,7 @@ input[type=file]{display:none;}
         </div>
       </div>
       <div style="flex:1;"></div>
-      <img src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" style="width:66px;height:66px;border-radius:18px;object-fit:cover;position:absolute;left:0;right:0;margin:0 auto;margin-top:6px;box-shadow:0 6px 20px rgba(251,191,36,0.45);"/>
+      <img src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" style="width:66px;height:66px;border-radius:18px;object-fit:cover;position:absolute;left:0;right:0;margin:0 auto;margin-top:30px;box-shadow:0 6px 20px rgba(251,191,36,0.45);"/>
       <button class="btn-ham" onclick="abrirMenu()" style="flex-shrink:0;position:relative;z-index:1;">☰</button>
     </div>
     <div class="toggle-wrap">
@@ -667,14 +667,13 @@ input[type=file]{display:none;}
     <div id="mapa-home"></div>
   </div>
 
-  <div class="secao-titulo">Últimas corridas</div>
-  <div id="lista-hist-home"><div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Nenhuma corrida ainda</div></div>
+  <div id="lista-hist-home" style="display:none;"></div>
   <div style="height:24px;"></div>
 </div>
 
 <!-- MODAL MAPA AMPLIADO -->
 <div id="modal-mapa-full" class="modal-mapa-full">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;padding-top:calc(env(safe-area-inset-top,0px) + 16px);">
     <div style="font-size:15px;font-weight:800;color:#fff;">Sua posição</div>
     <button onclick="fecharMapaFull()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:34px;height:34px;border-radius:10px;font-size:16px;cursor:pointer;">✕</button>
   </div>
@@ -840,6 +839,18 @@ input[type=file]{display:none;}
   </div>
 </div>
 
+<!-- MODAL HISTÓRICO DE CORRIDAS -->
+<div class="modal-base" id="modal-hist-mot">
+  <div class="modal-sheet" style="max-height:85vh;display:flex;flex-direction:column;">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 14px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:17px;font-weight:900;color:#fff;">🕐 Histórico de corridas</div>
+      <button onclick="document.getElementById('modal-hist-mot').classList.remove('show')" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:32px;height:32px;border-radius:9px;font-size:15px;cursor:pointer;">✕</button>
+    </div>
+    <div id="lista-hist-mot" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;"><div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">Carregando...</div></div>
+  </div>
+</div>
+
 <!-- MODAL SOBRE -->
 <div class="modal-base" id="modal-sobre">
   <div class="modal-sheet">
@@ -890,7 +901,7 @@ input[type=file]{display:none;}
 <!-- MENU HAMBÚRGUER (placeholder simples por enquanto) -->
 <div id="menu-overlay" onclick="fecharMenu()"></div>
 <div id="menu-lateral">
-  <div class="menu-topo">
+  <div class="menu-hdr">
     <div class="menu-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:22px;"/></div>
     <div class="menu-app">Corrida Já</div>
     <div class="menu-dev-por">Desenvolvido por</div>
@@ -901,6 +912,7 @@ input[type=file]{display:none;}
   </div>
   <div class="menu-items">
     <div class="menu-item" onclick="fecharMenu();irPara('ganhos')">💰 Meus ganhos</div>
+    <div class="menu-item" onclick="abrirHistoricoMot();fecharMenu()">🕐 Histórico de corridas</div>
     <div class="menu-item" onclick="fecharMenu();irPara('perfil')">👤 Meu perfil</div>
     <div class="menu-sep"></div>
     <div class="menu-item" onclick="abrirSobre();fecharMenu()">ℹ️ Sobre o aplicativo</div>
@@ -2320,6 +2332,29 @@ function avisarPagamentoMot(){
   if(isIOS&&!standalone&&!dismissed)setTimeout(()=>{document.getElementById("ios-guide").classList.add("show");setTimeout(()=>document.getElementById("ios-guide").classList.remove("show"),8000);},3000);
 })();
 function fecharPWA(){document.getElementById("pwa-banner").classList.remove("show");document.getElementById("ios-guide").classList.remove("show");localStorage.setItem("cjm_pwa_ok","1");}
+
+// ── HISTÓRICO DE CORRIDAS (modal) ──
+async function abrirHistoricoMot(){
+  document.getElementById("modal-hist-mot").classList.add("show");
+  const el=document.getElementById("lista-hist-mot");
+  el.innerHTML="<div style='padding:20px;text-align:center;color:var(--muted);font-size:13px;'>Carregando...</div>";
+  if(!user)return;
+  try{
+    const snap=await db.collection("cj_corridas").where("motorista.id","==",user.id).orderBy("criadoEm","desc").limit(30).get();
+    if(snap.empty){el.innerHTML="<div style='padding:40px;text-align:center;color:var(--muted);font-size:13px;'>Nenhuma corrida ainda</div>";return;}
+    el.innerHTML=snap.docs.map(d=>{
+      const c=d.data();
+      const concluida=c.status==="concluida";
+      const sc=concluida?"s-concluida":"s-cancelada";
+      const sl=concluida?"CONCLUÍDA":"CANCELADA";
+      return `<div class="corrida-hist-card">
+        <div class="corrida-hist-top"><div class="corrida-hist-status ${sc}">${sl}</div><div class="corrida-hist-data">${fmtData(c.criadoEm)}</div></div>
+        <div class="corrida-hist-rota">${(c.origem||"Origem")} → ${c.destino||"--"}</div>
+        <div class="corrida-hist-bottom"><div class="corrida-hist-passageiro">${c.clienteNome||"Anônimo"}</div><div class="corrida-hist-valor">R$ ${parseFloat(c.valor||0).toFixed(2).replace(".",",")}</div></div>
+      </div>`;
+    }).join("");
+  }catch(e){el.innerHTML="<div style='padding:40px;text-align:center;color:var(--muted);font-size:13px;'>Erro ao carregar</div>";}
+}
 </script>
 </body>
 </html>
