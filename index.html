@@ -510,9 +510,11 @@ input[type=file]{display:none;}
       <button class="btn-ham" onclick="abrirMenu()" style="flex-shrink:0;position:relative;z-index:1;">☰</button>
     </div>
   </div>
-  <div style="padding:40px 20px;text-align:center;color:var(--muted);">
+  <div style="padding:30px 20px;text-align:center;color:var(--muted);">
     <div style="font-size:15px;">✅ Login funcionando!</div>
-    <div style="font-size:12px;margin-top:8px;">A home completa (créditos, mapa, ganhos) vem na próxima etapa.</div>
+    <div style="width:120px;height:120px;border-radius:50%;border:4px solid var(--dourado);margin:18px auto;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--card2);font-size:40px;" id="teste-foto-grande">👤</div>
+    <div style="font-size:12px;">Foto cadastrada acima ↑ (teste do crop)</div>
+    <div style="font-size:12px;margin-top:12px;">A home completa (créditos, mapa, ganhos) vem na próxima etapa.</div>
     <button class="btn-p" style="margin-top:20px;width:auto;padding:12px 24px;" onclick="sair()">Sair / Testar de novo</button>
   </div>
 </div>
@@ -676,6 +678,11 @@ function atualizarHome(){
   const av=document.getElementById("home-avatar");
   if(user.foto)av.innerHTML=`<img src="${user.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
   else av.innerHTML=`<span style="font-size:15px;font-weight:700;color:var(--dourado);">${(user.nome||"M")[0].toUpperCase()}</span>`;
+  const tf=document.getElementById("teste-foto-grande");
+  if(tf){
+    if(user.foto)tf.innerHTML=`<img src="${user.foto}" style="width:100%;height:100%;object-fit:cover;"/>`;
+    else tf.textContent="👤 (sem foto)";
+  }
 }
 
 // ── MENU ──
