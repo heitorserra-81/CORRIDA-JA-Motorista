@@ -604,6 +604,19 @@ input[type=file]{display:none;}
   <div style="padding:30px 20px;text-align:center;color:var(--muted);">Perfil completo vem nas próximas etapas.</div>
 </div>
 
+<!-- CROP FOTO -->
+<div class="crop-overlay" id="crop-overlay">
+  <div style="color:#fff;font-size:15px;font-weight:700;">Ajustar foto</div>
+  <div style="color:var(--muted);font-size:12px;margin-top:-8px;">Arraste e use dois dedos para zoom</div>
+  <div class="crop-container" id="crop-container">
+    <canvas class="crop-canvas" id="crop-canvas" width="260" height="260"></canvas>
+  </div>
+  <div style="display:flex;gap:11px;">
+    <button onclick="cancelarCrop()" style="padding:11px 22px;border-radius:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;font-size:13px;background:rgba(255,255,255,0.07);color:var(--muted);">Cancelar</button>
+    <button onclick="confirmarCrop()" style="padding:11px 22px;border-radius:13px;font-weight:700;border:1px solid var(--border);cursor:pointer;font-family:inherit;font-size:13px;background:var(--azul2);color:var(--dourado);">Usar foto</button>
+  </div>
+</div>
+
 <!-- TOAST / LOADING -->
 <div id="toast"></div>
 <div id="loading"><div class="ld-spin"></div></div>
@@ -669,36 +682,68 @@ function atualizarHome(){
 function abrirMenu(){document.getElementById("menu-overlay").style.display="block";document.getElementById("menu-lateral").style.display="block";}
 function fecharMenu(){document.getElementById("menu-overlay").style.display="none";document.getElementById("menu-lateral").style.display="none";}
 
-// ── FOTO (crop) ──
+// ── FOTO (crop completo) ──
+let _cropPrevId=null,_cropTxtId=null;
 function processarFoto(inp,prevId,txtId){
-  const f=inp.files[0];if(!f)return;cropCtx="cad";
-  const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{cropImg=img;const cw=260,ch=260,sw=cw/img.naturalWidth,sh=ch/img.naturalHeight;cropBaseScale=Math.max(sw,sh);cropBaseX=(cw-img.naturalWidth*cropBaseScale)/2;cropBaseY=(ch-img.naturalHeight*cropBaseScale)/2;cropScale=1;cropTX=0;cropTY=0;
-  fotoFinalCad=null;
-  // Sem modal de crop nessa fatia 1 - usa a imagem direto (crop completo vem em fatia futura)
-  const reader=new FileReader();
-  };img.src=e.target.result;};r.readAsDataURL(f);
-  // Versão simplificada pra Fatia 1: salva direto em base64 reduzido
-  const r2=new FileReader();
-  r2.onload=ev=>{
-    const img2=new Image();
-    img2.onload=()=>{
-      const canvas=document.createElement("canvas");canvas.width=200;canvas.height=200;
-      const cx=canvas.getContext("2d");
-      const scale=Math.max(200/img2.naturalWidth,200/img2.naturalHeight);
-      const w=img2.naturalWidth*scale,hh=img2.naturalHeight*scale;
-      cx.drawImage(img2,(200-w)/2,(200-hh)/2,w,hh);
-      const url=canvas.toDataURL("image/jpeg",0.75);
-      fotoFinalCad=url;
-      const prev=document.getElementById(prevId);
-      if(prev)prev.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"/>`;
-      const txt=document.getElementById(txtId);
-      if(txt)txt.textContent="Foto adicionada ✓";
+  const f=inp.files[0];if(!f)return;cropCtx="cad";_cropPrevId=prevId;_cropTxtId=txtId;
+  const r=new FileReader();
+  r.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      cropImg=img;
+      const cw=260,ch=260,sw=cw/img.naturalWidth,sh=ch/img.naturalHeight;
+      cropBaseScale=Math.max(sw,sh);
+      cropBaseX=(cw-img.naturalWidth*cropBaseScale)/2;
+      cropBaseY=(ch-img.naturalHeight*cropBaseScale)/2;
+      cropScale=1;cropTX=0;cropTY=0;
+      desenharCrop();
+      document.getElementById("crop-overlay").style.display="flex";
     };
-    img2.src=ev.target.result;
+    img.src=e.target.result;
   };
-  r2.readAsDataURL(f);
+  r.readAsDataURL(f);
   inp.value="";
 }
+function desenharCrop(){
+  if(!cropImg)return;
+  const cv=document.getElementById("crop-canvas"),ctx=cv.getContext("2d");
+  ctx.clearRect(0,0,260,260);
+  const sc=cropBaseScale*cropScale;
+  ctx.save();
+  ctx.beginPath();ctx.arc(130,130,130,0,Math.PI*2);ctx.clip();
+  ctx.drawImage(cropImg,cropBaseX+cropTX,cropBaseY+cropTY,cropImg.naturalWidth*sc,cropImg.naturalHeight*sc);
+  ctx.restore();
+}
+function cancelarCrop(){document.getElementById("crop-overlay").style.display="none";cropImg=null;}
+function confirmarCrop(){
+  if(!cropImg)return;
+  const cv=document.getElementById("crop-canvas"),out=document.createElement("canvas");
+  out.width=200;out.height=200;
+  const ctx=out.getContext("2d");
+  ctx.save();ctx.beginPath();ctx.arc(100,100,100,0,Math.PI*2);ctx.clip();
+  ctx.drawImage(cv,0,0,260,260,0,0,200,200);
+  ctx.restore();
+  const url=out.toDataURL("image/jpeg",0.75);
+  document.getElementById("crop-overlay").style.display="none";cropImg=null;
+  if(cropCtx==="cad"){
+    fotoFinalCad=url;
+    const prev=document.getElementById(_cropPrevId||"foto-preview-cad");
+    if(prev)prev.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+    const txt=document.getElementById(_cropTxtId||"foto-texto-cad");
+    if(txt)txt.textContent="Foto adicionada ✓";
+  }
+}
+(function(){
+  const cont=document.getElementById("crop-container");
+  if(!cont)return;
+  let drag=false,lx=0,ly=0,ld=0;
+  cont.addEventListener("touchstart",e=>{if(e.touches.length===1){drag=true;lx=e.touches[0].clientX;ly=e.touches[0].clientY;}else if(e.touches.length===2){drag=false;ld=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}},{passive:true});
+  cont.addEventListener("touchmove",e=>{e.preventDefault();if(e.touches.length===1&&drag){cropTX+=e.touches[0].clientX-lx;cropTY+=e.touches[0].clientY-ly;lx=e.touches[0].clientX;ly=e.touches[0].clientY;desenharCrop();}else if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(ld){cropScale=Math.min(3,Math.max(.5,cropScale*(d/ld)));desenharCrop();}ld=d;}},{passive:false});
+  cont.addEventListener("touchend",()=>{drag=false;ld=0;});
+  cont.addEventListener("mousedown",e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+  cont.addEventListener("mousemove",e=>{if(!drag)return;cropTX+=e.clientX-lx;cropTY+=e.clientY-ly;lx=e.clientX;ly=e.clientY;desenharCrop();});
+  cont.addEventListener("mouseup",()=>drag=false);
+})();
 
 // ── INIT ──
 window.addEventListener("load",()=>{
