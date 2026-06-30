@@ -392,7 +392,7 @@ input[type=file]{display:none;}
 #pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9997;padding:11px 16px;padding-bottom:max(11px,var(--sab));background:rgba(15,26,46,0.97);border-top:1px solid var(--border);backdrop-filter:blur(10px);}
 #pwa-banner.show{display:block;animation:slideUp 0.4s ease;}
 .pwa-inner{display:flex;align-items:center;gap:11px;}
-.pwa-logo{width:42px;height:42px;border-radius:11px;overflow:hidden;flex-shrink:0;}
+.pwa-logo{width:42px;height:42px;border-radius:11px;overflow:hidden;flex-shrink:0;}.pwa-txt{flex:1;display:flex;flex-direction:column;}.pwa-txt strong{font-size:13px;color:#fff;}.pwa-txt span{font-size:11px;color:var(--muted);}
 .pwa-logo img{width:100%;height:100%;object-fit:cover;}
 .pwa-txt strong{display:block;font-size:13px;font-weight:700;color:#fff;}
 .pwa-txt span{font-size:11px;color:var(--muted);}
@@ -454,6 +454,97 @@ input[type=file]{display:none;}
 .modal-mapa-full{display:none;position:fixed;inset:0;z-index:9000;background:var(--bg);flex-direction:column;}
 .modal-mapa-full.show{display:flex;}
 #mapa-full-div{width:100%;}
+/* MODAL PEDIDO */
+.ped-timer-ring{position:relative;width:60px;height:60px;border-radius:50%;background:conic-gradient(var(--dourado) 0deg,var(--card2) 0deg);display:flex;align-items:center;justify-content:center;transition:background 1s linear;}
+.ped-timer-ring::before{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--card);}
+.ped-timer-num{position:relative;z-index:1;font-size:22px;font-weight:900;color:var(--dourado);}
+.ped-av-outer{position:relative;width:104px;height:104px;}
+.ped-av-ring{position:relative;width:104px;height:104px;border-radius:50%;padding:4px;overflow:hidden;background:var(--nivel-grad,conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32));}
+.ped-av-ring::before{content:"";position:absolute;top:50%;left:50%;width:150%;height:150%;border-radius:50%;background:var(--nivel-grad,conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32));animation:giraRot 3s linear infinite;}
+.ped-av-big{position:relative;z-index:1;width:96px;height:96px;border-radius:50%;background:var(--card2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:40px;}
+.ped-av-big img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.ped-badge{background:rgba(251,191,36,0.12);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#ffe9b0;}
+.ped-comentario{background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:11px 13px;margin-bottom:12px;}
+.ped-pgto-card{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:13px 16px;margin-bottom:12px;text-align:center;}
+.pedido-rota{margin:0 0 10px;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:11px 13px;}
+.pedido-rota-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px;}
+.pedido-rota-row span{color:var(--muted);font-size:12px;flex-shrink:0;margin-right:10px;}
+.pedido-rota-row div{color:var(--text);font-weight:600;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.pedido-rota-row+.pedido-rota-row{border-top:1px solid rgba(251,191,36,0.07);}
+.pedido-obs{background:rgba(251,191,36,0.06);border:1px dashed var(--border);border-radius:11px;padding:9px 12px;font-size:12px;color:var(--text);margin-bottom:10px;}
+.pedido-valor-row{display:flex;gap:10px;margin-bottom:14px;}
+.pedido-valor-item{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:11px;text-align:center;}
+.pedido-valor-num{font-size:16px;font-weight:900;color:#fff;}
+.pedido-valor-num.destaque{color:var(--dourado);font-size:18px;}
+.pedido-valor-label{font-size:10px;color:var(--muted);margin-top:3px;}
+.pedido-btns{display:flex;gap:10px;}
+.btn-recusar{flex:1;padding:14px;border-radius:14px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;}
+.btn-aceitar{flex:2;padding:14px;border-radius:14px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#fff;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(34,197,94,0.35);}
+/* TELA CORRIDA MOTORISTA */
+.btn-mapa-mini{position:absolute;top:10px;right:10px;z-index:999;background:rgba(10,16,32,0.85);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--dourado);cursor:pointer;}
+.corrida-painel{background:var(--bg);border-radius:24px 24px 0 0;margin-top:-18px;position:relative;z-index:2;padding:18px 16px 24px;}
+.corrida-status-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.corrida-status-txt{font-size:15px;font-weight:800;color:#fff;}
+.status-chip{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:var(--verde);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;}
+.passageiro-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:10px;}
+.pass-foto-corrida{width:50px;height:50px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;flex-shrink:0;}
+.pass-foto-corrida img{width:100%;height:100%;object-fit:cover;}
+.pass-info-corrida{flex:1;min-width:0;}
+.pass-nome-corrida{font-size:14px;font-weight:800;color:#fff;}
+.pass-destino-corrida{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pass-obs-corrida{font-size:11px;color:var(--dourado);margin-top:3px;}
+.corrida-acoes{display:flex;gap:9px;margin-bottom:14px;}
+.btn-nav,.btn-zap{flex:1;padding:12px;border-radius:13px;background:var(--card2);border:1px solid var(--border);color:var(--dourado);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+#etapas-corrida{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
+.etapa{flex-shrink:0;padding:9px 14px;border-radius:20px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.etapa.ativa{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
+#contador-espera{display:none;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:14px;padding:10px 14px;margin-bottom:12px;text-align:center;}
+#contador-espera-num{font-size:26px;font-weight:900;color:var(--dourado);}
+.valor-input-wrap{margin-bottom:12px;}
+.valor-input-label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px;}
+.valor-input-row{display:flex;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:0 14px;}
+.valor-prefix{font-size:16px;font-weight:800;color:var(--dourado);margin-right:8px;}
+.valor-input{flex:1;background:none;border:none;outline:none;color:#fff;font-size:20px;font-weight:800;padding:13px 0;font-family:inherit;}
+.btn-concluir{width:100%;padding:15px;border-radius:14px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#fff;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:9px;box-shadow:0 4px 14px rgba(34,197,94,0.3);}
+.btn-cancelar-corrida{width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+/* AVALIAÇÃO MOTORISTA */
+.estrela-mot{font-size:38px;color:var(--card2);cursor:pointer;transition:color 0.15s;}
+.estrela-mot.on{color:var(--dourado);}
+/* META */
+.meta-card{margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px;}
+.meta-periodos{display:flex;background:var(--card2);border-radius:10px;padding:2px;}
+.meta-per{padding:5px 11px;border:none;background:none;color:var(--muted);font-size:11px;font-weight:700;border-radius:8px;cursor:pointer;font-family:inherit;}
+.meta-per.ativo{background:var(--dourado);color:#1a1a1a;}
+.meta-barra{height:9px;background:var(--card2);border-radius:5px;overflow:hidden;}
+.meta-barra-prog{height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:5px;transition:width 0.5s;}
+/* GANHOS RESUMO */
+.ganhos-resumo-card{margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;}
+.ganhos-total{text-align:center;margin-bottom:14px;}
+.ganhos-total-val{font-size:28px;font-weight:900;color:var(--dourado);}
+.ganhos-total-label{font-size:11px;color:var(--muted);margin-top:3px;}
+.ganhos-stats{display:flex;gap:10px;}
+.ganhos-stat{flex:1;text-align:center;background:var(--card2);border-radius:13px;padding:11px 6px;}
+.ganhos-stat-val{font-size:16px;font-weight:900;color:#fff;}
+.ganhos-stat-label{font-size:10px;color:var(--muted);margin-top:3px;}
+/* GRÁFICO */
+.grafico-card{margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;}
+.grafico-barras{display:flex;align-items:flex-end;justify-content:space-between;height:110px;gap:6px;}
+.grafico-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;}
+.grafico-bar{width:100%;max-width:28px;background:linear-gradient(180deg,#fbbf24,#f59e0b);border-radius:6px 6px 2px 2px;min-height:3px;transition:height 0.4s;}
+.grafico-lb{font-size:10px;color:var(--muted);font-weight:600;}
+.corrida-hist-card{margin:0 16px 10px;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px;}
+.corrida-hist-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.corrida-hist-status{font-size:10px;font-weight:800;padding:3px 9px;border-radius:8px;letter-spacing:0.3px;}
+.s-concluida{background:rgba(34,197,94,0.15);color:var(--verde);}
+.s-cancelada{background:rgba(239,68,68,0.12);color:#ef4444;}
+.corrida-hist-data{font-size:11px;color:var(--muted);}
+.corrida-hist-rota{font-size:13px;color:var(--text);font-weight:600;margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.corrida-hist-bottom{display:flex;justify-content:space-between;align-items:center;}
+.corrida-hist-passageiro{font-size:12px;color:var(--muted);}
+.corrida-hist-valor{font-size:14px;font-weight:800;color:var(--dourado);}
+.cred-opcoes{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.cred-op{padding:10px 4px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.cred-op.ativo{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
 </style></head>
 <body>
 <!-- CANVAS PARTÍCULAS -->
@@ -461,7 +552,7 @@ input[type=file]{display:none;}
 
 <!-- SPLASH -->
 <div class="screen ativo" id="tela-splash">
-  <div class="splash-logo"><img id="logo-splash" src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" alt="Corrida Já Motorista" style="width:100%;height:100%;object-fit:cover;border-radius:32px;"/></div>
+  <div class="splash-logo"><img id="logo-splash" src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" alt="Corrida Já Motorista" style="width:100%;height:100%;object-fit:cover;border-radius:32px;background:#1a2a4a;" onerror="logoFallback(this)"/></div>
   <div class="splash-title">Corrida <span>Já</span></div>
   <div class="splash-sub">Área do motorista</div>
   <div class="splash-bar"></div>
@@ -546,7 +637,7 @@ input[type=file]{display:none;}
         </div>
       </div>
       <div style="flex:1;"></div>
-      <img src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" style="width:46px;height:46px;border-radius:11px;object-fit:cover;position:absolute;left:0;right:0;margin:0 auto;box-shadow:0 0 16px rgba(251,191,36,0.45);"/>
+      <img src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" style="width:66px;height:66px;border-radius:18px;object-fit:cover;position:absolute;left:0;right:0;margin:0 auto;margin-top:6px;box-shadow:0 6px 20px rgba(251,191,36,0.45);"/>
       <button class="btn-ham" onclick="abrirMenu()" style="flex-shrink:0;position:relative;z-index:1;">☰</button>
     </div>
     <div class="toggle-wrap">
@@ -555,14 +646,14 @@ input[type=file]{display:none;}
     </div>
   </div>
 
-  <div class="creditos-bar">
-    <div class="creditos-top"><div class="creditos-label">Créditos</div><div class="creditos-val" id="creditos-val">R$ 0,00</div></div>
+  <div class="creditos-bar" onclick="abrirComprarCreditosMot()" style="cursor:pointer;">
+    <div class="creditos-top"><div class="creditos-label">Créditos · toque para recarregar</div><div class="creditos-val" id="creditos-val">R$ 0,00</div></div>
     <div class="creditos-barra"><div class="creditos-prog" id="creditos-prog" style="width:0%"></div></div>
-    <div class="creditos-aviso" id="creditos-aviso">Fale com o administrador para recarregar</div>
+    <div class="creditos-aviso" id="creditos-aviso">Toque para comprar mais créditos</div>
   </div>
 
-  <div class="ganhos-card">
-    <div class="ganhos-titulo">Ganhos de hoje</div>
+  <div class="ganhos-card" onclick="irPara('ganhos')" style="cursor:pointer;">
+    <div class="ganhos-titulo">Ganhos de hoje · toque para ver mais →</div>
     <div class="ganhos-row">
       <div class="ganhos-item"><div class="ganhos-val destaque" id="ganhos-hoje">R$ 0,00</div><div class="ganhos-label">Ganhos</div></div>
       <div class="ganhos-item"><div class="ganhos-val" id="corridas-hoje">0</div><div class="ganhos-label">Corridas</div></div>
@@ -588,6 +679,94 @@ input[type=file]{display:none;}
     <button onclick="fecharMapaFull()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:34px;height:34px;border-radius:10px;font-size:16px;cursor:pointer;">✕</button>
   </div>
   <div id="mapa-full-div" style="flex:1;"></div>
+</div>
+
+<!-- TELA CORRIDA (motorista) -->
+<div class="screen" id="tela-corrida-mot">
+  <div id="mapa-corrida-mot" style="height:42vh;position:relative;">
+    <button class="btn-mapa-mini" onclick="abrirMapaFull()">⛶ Ampliar</button>
+  </div>
+  <div class="corrida-painel">
+    <div class="corrida-status-row">
+      <div class="corrida-status-txt" id="corrida-status-txt">A caminho do passageiro</div>
+      <div class="status-chip">Em corrida</div>
+    </div>
+
+    <div class="passageiro-card">
+      <div class="pass-foto-corrida" id="pass-foto"><span>👤</span></div>
+      <div class="pass-info-corrida">
+        <div class="pass-nome-corrida" id="pass-nome">--</div>
+        <div class="pass-destino-corrida" id="pass-destino">--</div>
+        <div class="pass-obs-corrida" id="pass-obs" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="ped-pgto-card" style="margin-bottom:10px;">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;">PAGAMENTO COMBINADO</div>
+      <div style="font-size:15px;font-weight:900;color:var(--dourado);margin-top:2px;" id="corrida-pgto-info">--</div>
+    </div>
+
+    <div class="corrida-acoes">
+      <button class="btn-nav" onclick="abrirNavegacao()">🧭 Navegar</button>
+      <button class="btn-zap" onclick="abrirChatMot()">💬 Chat</button>
+    </div>
+
+    <!-- ETAPAS -->
+    <div id="etapas-corrida">
+      <div class="etapa ativa" id="etapa-caminho" onclick="mudarStatus('a_caminho')">A caminho</div>
+      <div class="etapa" id="etapa-cheguei" onclick="mudarStatus('cheguei')">Cheguei</div>
+      <div class="etapa" id="etapa-no-carro" onclick="mudarStatus('no_carro')">No carro</div>
+      <div class="etapa" id="etapa-destino" onclick="mudarStatus('a_destino')">Ao destino</div>
+    </div>
+
+    <div id="contador-espera" style="display:none;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Aguardando passageiro</div>
+      <div id="contador-espera-num">0:00</div>
+    </div>
+
+    <div class="valor-input-wrap">
+      <div class="valor-input-label">Valor cobrado <span style="font-size:10px;color:var(--verde);margin-left:6px;">✏️ editável</span></div>
+      <div class="valor-input-row"><div class="valor-prefix">R$</div><input type="number" class="valor-input" id="valor-corrida" placeholder="0,00" step="0.50" min="0"/></div>
+    </div>
+
+    <button class="btn-concluir" onclick="concluirCorrida()">✓ Concluir corrida</button>
+    <button class="btn-cancelar-corrida" onclick="cancelarCorridaMotorista()">Cancelar corrida</button>
+  </div>
+</div>
+
+<!-- MODAL CHAT (motorista) -->
+<div class="modal-base" id="modal-chat-mot">
+  <div class="modal-sheet" style="height:75vh;display:flex;flex-direction:column;padding-bottom:0;">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 12px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:15px;font-weight:800;color:#fff;">💬 Chat com passageiro</div>
+      <button onclick="fecharChatMot()" style="background:var(--card2);border:1px solid var(--border);color:var(--dourado);width:32px;height:32px;border-radius:9px;font-size:15px;cursor:pointer;">✕</button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs-mot" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;"></div>
+    <div style="display:flex;gap:8px;padding:10px 0;">
+      <input class="campo-input" id="chat-inp-mot" type="text" placeholder="Digite uma mensagem..." style="flex:1;margin-bottom:0;"/>
+      <button onclick="enviarMsgMot()" style="background:var(--dourado);border:none;color:#1a1a1a;width:44px;height:44px;border-radius:13px;font-size:18px;cursor:pointer;flex-shrink:0;">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AVALIAÇÃO OBRIGATÓRIA (motorista avalia passageiro) -->
+<div class="modal-base" id="modal-aval-mot">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="text-align:center;margin-bottom:6px;font-size:17px;font-weight:900;color:#fff;">Como foi com <span id="aval-mot-nome">o passageiro</span>?</div>
+    <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:18px;">Sua avaliação é obrigatória para continuar usando o app</div>
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:18px;">
+      <span class="estrela-mot" data-n="1" onclick="selEstrelaMot(1)">★</span>
+      <span class="estrela-mot" data-n="2" onclick="selEstrelaMot(2)">★</span>
+      <span class="estrela-mot" data-n="3" onclick="selEstrelaMot(3)">★</span>
+      <span class="estrela-mot" data-n="4" onclick="selEstrelaMot(4)">★</span>
+      <span class="estrela-mot" data-n="5" onclick="selEstrelaMot(5)">★</span>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:7px;">Comentário (opcional)</div>
+    <textarea id="aval-mot-comentario" placeholder="Como foi a corrida com este passageiro?" style="width:100%;min-height:90px;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:12px;color:var(--text);font-family:inherit;font-size:13px;resize:none;margin-bottom:16px;"></textarea>
+    <button class="btn-p" onclick="enviarAvalMot()" style="width:100%;">Enviar avaliação</button>
+  </div>
 </div>
 
 <!-- MODAL TERMOS -->
@@ -626,6 +805,38 @@ input[type=file]{display:none;}
     </div>
     <button class="btn-p" onclick="document.getElementById('cad-termos').checked=true;document.getElementById('modal-termos').classList.remove('show')" style="width:100%;margin-top:14px;">Li e aceito</button>
     <button class="btn-cancel" onclick="document.getElementById('modal-termos').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:9px;">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL COMPRAR CRÉDITOS -->
+<div class="modal-base" id="modal-cred-mot">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:5px;">💳 Comprar Créditos</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Créditos são necessários para receber pedidos. Saldo máximo: R$ 200.</div>
+
+    <div style="margin-bottom:13px;">
+      <div class="campo-label">Quanto deseja adicionar?</div>
+      <div class="cred-opcoes">
+        <button class="cred-op" onclick="selCredValor(20,this)">R$ 20</button>
+        <button class="cred-op" onclick="selCredValor(50,this)">R$ 50</button>
+        <button class="cred-op ativo" onclick="selCredValor(100,this)">R$ 100</button>
+        <button class="cred-op" onclick="selCredValor(200,this)">R$ 200</button>
+      </div>
+      <input class="campo-input" id="cred-valor-custom" type="number" placeholder="Ou digite outro valor" min="1" max="200" style="margin-top:9px;" oninput="document.querySelectorAll('.cred-op').forEach(b=>b.classList.remove('ativo'))"/>
+    </div>
+
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:13px;">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">Chave Pix</div>
+      <div style="font-size:15px;font-weight:700;color:#fff;">19982480386</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;">WhatsApp · Heitor Serra Neto</div>
+    </div>
+    <div style="display:flex;gap:9px;margin-bottom:13px;">
+      <button onclick="copiarPixMot()" style="flex:1;padding:11px;border-radius:13px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">📋 Copiar chave</button>
+      <button onclick="avisarPagamentoMot()" style="flex:1;padding:11px;border-radius:13px;background:#25d366;border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">WhatsApp</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:13px;">Após o Pix, avise no WhatsApp com o comprovante. O crédito é liberado manualmente pelo administrador.</div>
+    <button class="btn-cancel" onclick="document.getElementById('modal-cred-mot').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>
   </div>
 </div>
 
@@ -680,10 +891,16 @@ input[type=file]{display:none;}
 <div id="menu-overlay" onclick="fecharMenu()"></div>
 <div id="menu-lateral">
   <div class="menu-topo">
-    <img src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" class="menu-logo"/>
-    <div class="menu-dev">Desenvolvido por<div class="menu-ret-nome">Heitor Serra Neto</div></div>
+    <div class="menu-logo"><img src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:22px;"/></div>
+    <div class="menu-app">Corrida Já</div>
+    <div class="menu-dev-por">Desenvolvido por</div>
+    <div class="menu-ret">
+      <div class="menu-ret-luz"></div>
+      <div class="menu-ret-inner"><div class="menu-ret-nome">Heitor Serra Neto</div></div>
+    </div>
   </div>
   <div class="menu-items">
+    <div class="menu-item" onclick="fecharMenu();irPara('ganhos')">💰 Meus ganhos</div>
     <div class="menu-item" onclick="fecharMenu();irPara('perfil')">👤 Meu perfil</div>
     <div class="menu-sep"></div>
     <div class="menu-item" onclick="abrirSobre();fecharMenu()">ℹ️ Sobre o aplicativo</div>
@@ -692,14 +909,214 @@ input[type=file]{display:none;}
   </div>
 </div>
 
-<!-- PERFIL (placeholder) -->
+<!-- TELA GANHOS -->
+<div class="screen" id="tela-ganhos">
+  <div class="perf-hdr">
+    <button onclick="irPara('home')" style="background:none;border:none;color:var(--dourado);font-size:22px;cursor:pointer;padding:3px;">←</button>
+    <h2 style="margin:0;">Meus Ganhos</h2>
+    <div style="width:30px;"></div>
+  </div>
+
+  <!-- META -->
+  <div class="meta-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div style="font-size:13px;font-weight:800;color:#fff;">🎯 Meta</div>
+      <div class="meta-periodos">
+        <button class="meta-per ativo" data-per="dia" onclick="trocarPeriodoMeta('dia')">Dia</button>
+        <button class="meta-per" data-per="semana" onclick="trocarPeriodoMeta('semana')">Semana</button>
+        <button class="meta-per" data-per="mes" onclick="trocarPeriodoMeta('mes')">Mês</button>
+      </div>
+    </div>
+    <div id="meta-sem-valor" style="text-align:center;padding:10px 0;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Você ainda não definiu uma meta</div>
+      <button class="btn-p" onclick="abrirDefinirMeta()" style="width:auto;padding:10px 20px;">Definir meta</button>
+    </div>
+    <div id="meta-com-valor" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+        <div style="font-size:20px;font-weight:900;color:var(--dourado);" id="meta-atual-val">R$ 0</div>
+        <div style="font-size:12px;color:var(--muted);">de <span id="meta-alvo-val">R$ 0</span></div>
+      </div>
+      <div class="meta-barra"><div class="meta-barra-prog" id="meta-barra-prog" style="width:0%;"></div></div>
+      <button onclick="abrirDefinirMeta()" style="background:none;border:none;color:var(--dourado);font-size:11px;font-weight:600;cursor:pointer;margin-top:8px;padding:4px;">✏️ Editar meta</button>
+    </div>
+  </div>
+
+  <!-- RESUMO -->
+  <div class="ganhos-resumo-card">
+    <div class="ganhos-total"><div class="ganhos-total-val" id="total-ganhos">R$ 0,00</div><div class="ganhos-total-label">Total acumulado</div></div>
+    <div class="ganhos-stats">
+      <div class="ganhos-stat"><div class="ganhos-stat-val" id="total-corridas">0</div><div class="ganhos-stat-label">Corridas</div></div>
+      <div class="ganhos-stat"><div class="ganhos-stat-val" id="total-aval">--</div><div class="ganhos-stat-label">Avaliação</div></div>
+      <div class="ganhos-stat"><div class="ganhos-stat-val" id="total-creditos">R$ 0</div><div class="ganhos-stat-label">Créditos</div></div>
+    </div>
+  </div>
+
+  <!-- GRÁFICO -->
+  <div class="grafico-card">
+    <div style="font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;margin-bottom:14px;">Ganhos dos últimos 7 dias</div>
+    <div id="grafico-barras" class="grafico-barras"></div>
+  </div>
+
+  <div class="secao-titulo">Histórico de corridas</div>
+  <div id="lista-corridas-ganhos"></div>
+  <div style="height:24px;"></div>
+</div>
+
+<!-- MODAL DEFINIR META -->
+<div class="modal-base" id="modal-meta">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="font-size:17px;font-weight:900;color:#fff;text-align:center;margin-bottom:18px;">🎯 Definir meta de ganhos</div>
+    <div style="margin-bottom:14px;"><div class="campo-label">Período</div>
+      <select class="campo-input" id="meta-periodo-sel">
+        <option value="dia">Diária</option>
+        <option value="semana">Semanal</option>
+        <option value="mes">Mensal</option>
+      </select>
+    </div>
+    <div style="margin-bottom:18px;"><div class="campo-label">Valor da meta (R$)</div><input class="campo-input" id="meta-valor-input" type="number" placeholder="Ex: 150" min="1"/></div>
+    <button class="btn-p" onclick="salvarMeta()" style="width:100%;margin-bottom:9px;">Salvar meta</button>
+    <button class="btn-cancel" onclick="document.getElementById('modal-meta').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Cancelar</button>
+  </div>
+</div>
+
+<!-- PERFIL COMPLETO -->
 <div class="screen" id="tela-perfil">
   <div class="perf-hdr">
     <button onclick="irPara('home')" style="background:none;border:none;color:var(--dourado);font-size:22px;cursor:pointer;padding:3px;">←</button>
     <h2 style="margin:0;">Meu Perfil</h2>
-    <div style="width:60px;"></div>
+    <button onclick="abrirEditarPerfilMot()" style="background:rgba(251,191,36,0.1);border:1px solid var(--border);color:var(--dourado);font-size:12px;font-weight:700;cursor:pointer;padding:7px 14px;border-radius:20px;">✏️ Editar</button>
   </div>
-  <div style="padding:30px 20px;text-align:center;color:var(--muted);">Perfil completo vem nas próximas etapas.</div>
+
+  <div class="perf-marca">
+    <img src="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png" class="perf-marca-logo"/>
+    <div class="perf-marca-txt">Desenvolvido por <b>Heitor Serra Neto</b></div>
+  </div>
+
+  <div class="perf-hero">
+    <div class="perf-av-outer">
+      <div class="perf-av-ring" id="perf-av-ring">
+        <div class="perf-av-big" id="perf-av"><span id="perf-initial">🚗</span></div>
+      </div>
+      <div class="perf-edit" onclick="event.stopPropagation();document.getElementById('inp-foto-perf').click()">✏️</div>
+    </div>
+    <input type="file" id="inp-foto-perf" accept="image/*" onchange="atualizarFotoPerfilMot(this)"/>
+    <div class="perf-nome-big" id="perf-nome">--</div>
+    <div class="perf-nivel" id="perf-nivel">🥉 Motorista Bronze</div>
+  </div>
+
+  <div class="perf-stats-row">
+    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-corridas">0</div><div class="perf-stat-lb">Corridas</div></div></div>
+    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-aval">5.0</div><div class="perf-stat-lb">⭐ Avaliação</div></div></div>
+    <div class="perf-stat-wrap"><div class="perf-stat"><div class="perf-stat-num" id="ps-membro">--</div><div class="perf-stat-lb">Membro desde</div></div></div>
+  </div>
+
+  <div id="alerta-aval-baixa" style="display:none;margin:0 16px 14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:14px;padding:13px;">
+    <div style="font-size:13px;font-weight:800;color:#ef4444;margin-bottom:4px;">⚠️ Sua avaliação está baixa</div>
+    <div style="font-size:12px;color:var(--text);margin-bottom:8px;">Isso pode afetar o recebimento de corridas. Se quiser, explique o que houve.</div>
+    <textarea id="explicacao-aval" placeholder="Explique aqui (opcional)..." style="width:100%;min-height:60px;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:9px;color:var(--text);font-family:inherit;font-size:12px;resize:none;margin-bottom:8px;"></textarea>
+    <button onclick="enviarExplicacaoAval()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444;font-size:12px;font-weight:700;padding:8px 16px;border-radius:10px;cursor:pointer;font-family:inherit;">Enviar explicação</button>
+  </div>
+
+  <div class="perf-sec-tit">Dados pessoais</div>
+  <div class="perf-info-card">
+    <div class="perf-info-row"><span class="perf-info-ic">👤</span><div class="perf-info-txt"><div class="perf-info-lb">Nome completo</div><div class="perf-info-vl" id="pi-nome">--</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">📱</span><div class="perf-info-txt"><div class="perf-info-lb">WhatsApp</div><div class="perf-info-vl" id="pi-fone">--</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">🪪</span><div class="perf-info-txt"><div class="perf-info-lb">CPF</div><div class="perf-info-vl" id="pi-cpf">--</div></div></div>
+  </div>
+
+  <div class="perf-sec-tit">Veículo</div>
+  <div class="perf-info-card">
+    <div class="perf-info-row"><span class="perf-info-ic">🚘</span><div class="perf-info-txt"><div class="perf-info-lb">Tipo</div><div class="perf-info-vl" id="pi-veiculo">--</div></div></div>
+    <div class="perf-info-row"><span class="perf-info-ic">🔖</span><div class="perf-info-txt"><div class="perf-info-lb">Placa</div><div class="perf-info-vl" id="pi-placa">--</div></div></div>
+  </div>
+
+  <button class="btn-sair" onclick="sair()">Sair da conta</button>
+  <div style="text-align:center;margin:16px 0 30px;font-size:10px;color:rgba(255,255,255,0.15);">Corrida Já · Desenvolvido por Heitor Serra Neto</div>
+</div>
+
+<!-- MODAL EDITAR PERFIL (motorista) -->
+<div class="modal-base" id="modal-editar-mot">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="font-size:18px;font-weight:900;color:#fff;text-align:center;margin-bottom:18px;">Editar Perfil</div>
+    <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:14px;">
+      <div><div class="campo-label">Nome completo</div><input id="ed-nome-mot" class="campo-input" type="text" placeholder="Seu nome"/></div>
+      <div><div class="campo-label">WhatsApp</div><input id="ed-fone-mot" class="campo-input" type="tel" placeholder="(19) 99999-9999"/></div>
+      <div><div class="campo-label">CPF</div><input id="ed-cpf-mot" class="campo-input" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)"/></div>
+      <div><div class="campo-label">Tipo de veículo</div>
+        <select class="campo-input" id="ed-veiculo-mot">
+          <option value="carro">Carro</option>
+          <option value="moto">Moto</option>
+          <option value="van">Van</option>
+        </select>
+      </div>
+      <div><div class="campo-label">Placa</div><input id="ed-placa-mot" class="campo-input" type="text" style="text-transform:uppercase;" placeholder="ABC-1234"/></div>
+    </div>
+    <button class="btn-p" onclick="salvarPerfilMot()" style="width:100%;margin-bottom:9px;">Salvar alterações</button>
+    <button class="btn-cancel" onclick="document.getElementById('modal-editar-mot').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL PEDIDO DE CORRIDA -->
+<div class="modal-base" id="modal-pedido">
+  <div class="modal-sheet" id="ped-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 14px;"></div>
+
+    <!-- Timer -->
+    <div style="display:flex;justify-content:center;margin-bottom:14px;">
+      <div class="ped-timer-ring">
+        <div class="ped-timer-num" id="ped-timer">15</div>
+      </div>
+    </div>
+
+    <!-- Foto grande + nome + idade + nível -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px;">
+      <div class="ped-av-outer">
+        <div class="ped-av-ring" id="ped-av-ring">
+          <div class="ped-av-big" id="ped-foto"><span>👤</span></div>
+        </div>
+      </div>
+      <div style="font-size:19px;font-weight:900;color:#fff;margin-top:10px;" id="ped-nome">--</div>
+      <div style="display:flex;gap:7px;align-items:center;margin-top:5px;">
+        <div class="ped-badge" id="ped-nivel">🥉 Bronze</div>
+        <div class="ped-badge" id="ped-idade">-- anos</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px;" id="ped-stats">⭐ 5.0 · 0 corridas</div>
+    </div>
+
+    <!-- Último comentário -->
+    <div class="ped-comentario" id="ped-comentario-wrap" style="display:none;">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:3px;">💬 ÚLTIMO COMENTÁRIO RECEBIDO</div>
+      <div style="font-size:13px;color:var(--text);font-style:italic;" id="ped-comentario">--</div>
+    </div>
+
+    <!-- Forma de pagamento (destaque) -->
+    <div class="ped-pgto-card" id="ped-pgto-card">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;">FORMA DE PAGAMENTO</div>
+      <div style="font-size:17px;font-weight:900;color:var(--dourado);margin-top:3px;" id="ped-pgto">--</div>
+      <div style="font-size:12px;color:var(--text);margin-top:2px;" id="ped-troco" style="display:none;"></div>
+    </div>
+
+    <!-- Rota -->
+    <div class="pedido-rota">
+      <div class="pedido-rota-row"><span>📍 Origem</span><div id="ped-origem">--</div></div>
+      <div class="pedido-rota-row"><span>🏁 Destino</span><div id="ped-destino">--</div></div>
+    </div>
+
+    <div class="pedido-obs" id="ped-obs" style="display:none;"></div>
+
+    <!-- Valor + crédito -->
+    <div class="pedido-valor-row">
+      <div class="pedido-valor-item"><div class="pedido-valor-num destaque" id="ped-valor">--</div><div class="pedido-valor-label">Valor estimado</div></div>
+      <div class="pedido-valor-item"><div class="pedido-valor-num" id="ped-credito-custo">--</div><div class="pedido-valor-label">Custo em créditos</div></div>
+    </div>
+
+    <div class="pedido-btns">
+      <button class="btn-recusar" onclick="recusarCorrida()">Recusar</button>
+      <button class="btn-aceitar" onclick="aceitarCorrida()">Aceitar</button>
+    </div>
+  </div>
 </div>
 
 <!-- CROP FOTO -->
@@ -713,6 +1130,23 @@ input[type=file]{display:none;}
     <button onclick="cancelarCrop()" style="padding:11px 22px;border-radius:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;font-size:13px;background:rgba(255,255,255,0.07);color:var(--muted);">Cancelar</button>
     <button onclick="confirmarCrop()" style="padding:11px 22px;border-radius:13px;font-weight:700;border:1px solid var(--border);cursor:pointer;font-family:inherit;font-size:13px;background:var(--azul2);color:var(--dourado);">Usar foto</button>
   </div>
+</div>
+
+<div id="pwa-banner">
+  <div class="pwa-inner">
+    <div class="pwa-logo"><img id="pwa-logo-img" src="" alt=""/></div>
+    <div class="pwa-txt"><strong>Instalar Corrida Já</strong><span>Adicione à tela inicial</span></div>
+    <div class="pwa-btns"><button class="btn-inst" id="btn-inst">Instalar</button><button class="btn-x" onclick="fecharPWA()">✕</button></div>
+  </div>
+</div>
+<div id="ios-guide">
+  <div class="ios-tit">📲 Instalar no iPhone <button class="btn-x" onclick="fecharPWA()">✕</button></div>
+  <div class="ios-steps">
+    <div class="ios-step"><div class="ios-n">1</div><span>Toque em <span class="chip-ios">⬆ Compartilhar</span> na barra do Safari</span></div>
+    <div class="ios-step"><div class="ios-n">2</div><span>Role e toque em <em>"Adicionar à Tela de Início"</em></span></div>
+    <div class="ios-step"><div class="ios-n">3</div><span>Toque em <em>"Adicionar"</em> para confirmar</span></div>
+  </div>
+  <button onclick="fecharPWA()" style="width:100%;padding:10px;border-radius:16px;background:rgba(255,255,255,0.05);border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Entendi</button>
 </div>
 
 <!-- TOAST / LOADING -->
@@ -769,7 +1203,8 @@ function irPara(dest){
       setTimeout(()=>{atualizarHome();atualizarCreditos();carregarGanhosHome();carregarHistHome();},50);
       setTimeout(()=>{if(mapaHome)mapaHome.invalidateSize();},400);
       break;
-    case"perfil":mostrarTela("tela-perfil");break;
+    case"perfil":mostrarTela("tela-perfil");setTimeout(()=>atualizarPerfil(),50);break;
+    case"ganhos":mostrarTela("tela-ganhos");setTimeout(()=>{carregarGanhos();atualizarMetaView();},50);break;
   }
 }
 function atualizarHome(){
@@ -835,6 +1270,12 @@ function confirmarCrop(){
     if(prev)prev.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
     const txt=document.getElementById(_cropTxtId||"foto-texto-cad");
     if(txt)txt.textContent="Foto adicionada ✓";
+  }else if(cropCtx==="perfilmot"){
+    loading(true);
+    db.collection("cj_motoristas").doc(user.id).update({foto:url}).then(()=>{
+      user.foto=url;localStorage.setItem("cjm_user",JSON.stringify(user));
+      atualizarPerfil();atualizarHome();loading(false);toast("Foto atualizada! ✓");
+    }).catch(()=>{loading(false);toast("Erro ao salvar foto.");});
   }
 }
 (function(){
@@ -850,10 +1291,13 @@ function confirmarCrop(){
 })();
 
 // ── INIT ──
+function logoFallback(img){img.style.display="none";const p=img.parentElement;p.style.display="flex";p.style.alignItems="center";p.style.justifyContent="center";p.style.fontSize="50px";p.style.background="#1a2a4a";p.textContent="🚗";}
 window.addEventListener("load",()=>{
-  const s=localStorage.getItem("cjm_user");
-  if(s){user=JSON.parse(s);irPara("home");}
-  else mostrarTela("tela-login");
+  setTimeout(()=>{
+    const s=localStorage.getItem("cjm_user");
+    if(s){user=JSON.parse(s);irPara("home");}
+    else mostrarTela("tela-login");
+  },1800);
 });
 
 // ── HASH SENHA ──
@@ -1005,6 +1449,9 @@ function abrirSobre(){document.getElementById("modal-sobre").classList.add("show
 
 // ── ESTADO ONLINE/CRÉDITOS ──
 let online=false,posicaoAtual=null,gpsInterval=null,mapaHome=null,mapaFull=null,marcadorPosicao=null;
+// ── NOTIF ──
+async function pedirNotif(){try{if("Notification"in window)await Notification.requestPermission();}catch(e){}}
+function notif(t,b){if(typeof Notification!=="undefined"&&Notification.permission==="granted")try{new Notification(t,{body:b,tag:"cjm",vibrate:[200,100,200]});}catch(e){}}
 const CREDITO_MAX=200; // teto rígido configurável no painel admin futuramente
 
 function alternarOnline(){
@@ -1028,6 +1475,8 @@ async function _setOnline(){
   document.getElementById("toggle-sub").textContent="Aguardando corridas...";
   try{await db.collection("cj_motoristas").doc(user.id).update({online:true,lat:posicaoAtual[0],lng:posicaoAtual[1]});}catch(e){}
   iniciarGPS();
+  escutarPedidos();
+  pedirNotif();
   toast("Você está online! 🟢");
 }
 async function ficarOffline(){
@@ -1036,6 +1485,7 @@ async function ficarOffline(){
   document.getElementById("toggle-label").textContent="Você está offline";
   document.getElementById("toggle-sub").textContent="Ative para receber corridas";
   if(gpsInterval){clearInterval(gpsInterval);gpsInterval=null;}
+  if(unsubPedidos){unsubPedidos();unsubPedidos=null;}
   try{await db.collection("cj_motoristas").doc(user.id).update({online:false});}catch(e){}
 }
 function iniciarGPS(){
@@ -1106,6 +1556,16 @@ function fmtData(ts){if(!ts)return"--";const d=ts.toDate?ts.toDate():new Date(ts
 // ── ÁUDIO (necessário pra desbloquear no iPhone) ──
 let _ac=null;
 function getAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();if(_ac.state==="suspended")_ac.resume();return _ac;}
+function nota(f,s,d,v=.7){try{const c=getAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(f,c.currentTime+s);g.gain.setValueAtTime(0,c.currentTime+s);g.gain.linearRampToValueAtTime(v,c.currentTime+s+.01);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+s+d);o.start(c.currentTime+s);o.stop(c.currentTime+s+d+.05);}catch(e){}}
+function falar(txt){try{if(!("speechSynthesis"in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang="pt-BR";u.rate=1;u.pitch=1;const v=speechSynthesis.getVoices().find(x=>x.lang.startsWith("pt"));if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}
+function somNovoPedido(){
+  nota(659,0,.12,.85);nota(880,.14,.12,.85);nota(659,.28,.12,.85);nota(880,.42,.4,.8);
+  setTimeout(()=>falar("Corrida Já! Você tem um novo pedido de corrida!"),500);
+}
+function somCorridaConcluida(){
+  nota(523,0,.12,.7);nota(659,.13,.12,.7);nota(784,.26,.4,.7);
+}
+if("speechSynthesis"in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
 
 // ── MAPAS ──
 function iniciarMapaHome(){
@@ -1141,6 +1601,725 @@ function iniciarGPSInicial(){
   },()=>{});
 }
 
+
+// ── TABELA DE VALORES E CRÉDITOS POR DISTÂNCIA ──
+// Configurável futuramente no painel admin
+function calcularValorPorDistancia(km){
+  const tabela=[{ate:2,preco:8},{ate:5,preco:12},{ate:10,preco:18},{ate:20,preco:25},{ate:999,preco:35}];
+  for(const t of tabela){if(km<=t.ate)return t.preco;}
+  return 35;
+}
+function calcularCreditoPorDistancia(km){
+  // Pontos de partida modestos, ajustáveis no painel admin
+  const tabela=[{ate:5,creditos:1},{ate:15,creditos:2},{ate:30,creditos:3},{ate:999,creditos:4}];
+  for(const t of tabela){if(km<=t.ate)return t.creditos;}
+  return 4;
+}
+function dKmMot(la1,lo1,la2,lo2){
+  const R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function calcularIdade(dataNasc){
+  if(!dataNasc)return null;
+  const hoje=new Date(),nasc=new Date(dataNasc);
+  let idade=hoje.getFullYear()-nasc.getFullYear();
+  const m=hoje.getMonth()-nasc.getMonth();
+  if(m<0||(m===0&&hoje.getDate()<nasc.getDate()))idade--;
+  return idade;
+}
+function nivelPorCorridas(tc){
+  if(tc>=50)return{nivel:"💎 Diamante",grad:"conic-gradient(#b9f2ff,#7fd4e8,#5fa8d3,#a0e9ff,#b9f2ff)"};
+  if(tc>=20)return{nivel:"🥇 Ouro",grad:"conic-gradient(#ffd700,#fff3a0,#daa520,#ffd700)"};
+  if(tc>=5)return{nivel:"🥈 Prata",grad:"conic-gradient(#c0c0c0,#f5f5f5,#a8a8a8,#e8e8e8,#c0c0c0)"};
+  return{nivel:"🥉 Bronze",grad:"conic-gradient(#cd7f32,#f0b97d,#8b5a2b,#cd7f32)"};
+}
+
+// ── ESCUTAR PEDIDOS ──
+let unsubPedidos=null,pedidoAtual=null,corridaAtiva=null,timerPedido=null,_pedSeg=15;
+function escutarPedidos(){
+  if(unsubPedidos)unsubPedidos();
+  unsubPedidos=db.collection("cj_corridas").where("status","==","aguardando").onSnapshot(snap=>{
+    snap.docChanges().forEach(change=>{
+      if(change.type==="added"&&!pedidoAtual&&!corridaAtiva){
+        mostrarPedido({...change.doc.data(),id:change.doc.id});
+      }
+      if(change.type==="modified"&&pedidoAtual&&change.doc.id===pedidoAtual.id){
+        const d=change.doc.data();
+        if(d.status==="cancelada_cliente"){
+          recusarCorrida();
+          toast("Passageiro cancelou o pedido.");
+        }
+      }
+    });
+  });
+}
+
+// ── MOSTRAR PEDIDO (card completo) ──
+async function mostrarPedido(corrida){
+  pedidoAtual=corrida;
+  try{getAC();}catch(e){}
+  somNovoPedido();
+  notif("🚗 Novo pedido de corrida!",(corrida.clienteNome||"Passageiro")+" quer ir para "+(corrida.destino||"--"));
+  const g=id=>document.getElementById(id);
+
+  g("ped-nome").textContent=corrida.clienteNome||"Passageiro";
+  g("ped-origem").textContent=(corrida.origem||"Localização atual");
+  g("ped-destino").textContent=corrida.destino||"--";
+  g("ped-valor").textContent=corrida.valorEstimado||"Calculando...";
+
+  // Foto + anel de nível
+  const av=g("ped-foto");
+  if(corrida.clienteFoto)av.innerHTML=`<img src="${corrida.clienteFoto}"/>`;
+  else av.innerHTML="<span>👤</span>";
+
+  // Buscar dados completos do passageiro (idade, nível, corridas, avaliação, último comentário)
+  let dadosPass=null;
+  try{
+    if(corrida.clienteId&&!corrida.clienteId.startsWith("anon_")){
+      const snap=await db.collection("cj_passageiros").doc(corrida.clienteId).get();
+      if(snap.exists)dadosPass=snap.data();
+    }
+  }catch(e){}
+
+  const tc=dadosPass?.totalCorridas||0;
+  const {nivel,grad}=nivelPorCorridas(tc);
+  g("ped-nivel").textContent=nivel;
+  const ring=g("ped-av-ring");if(ring)ring.style.setProperty("--nivel-grad",grad);
+
+  const idade=calcularIdade(dadosPass?.dataNascimento);
+  g("ped-idade").textContent=idade?idade+" anos":"Idade não informada";
+
+  const aval=(dadosPass?.avaliacao||5).toFixed(1);
+  g("ped-stats").textContent=`⭐ ${aval} · ${tc} corrida${tc!==1?"s":""}`;
+
+  // Último comentário recebido pelo passageiro
+  const comentWrap=g("ped-comentario-wrap");
+  if(dadosPass?.ultimoComentario){
+    g("ped-comentario").textContent=`"${dadosPass.ultimoComentario}"`;
+    comentWrap.style.display="block";
+  }else comentWrap.style.display="none";
+
+  // Forma de pagamento em destaque
+  const pgtoIcones={Dinheiro:"💵",Pix:"📱",Débito:"💳",Crédito:"💳"};
+  g("ped-pgto").textContent=(pgtoIcones[corrida.formaPgto]||"💰")+" "+(corrida.formaPgto||"Não informado");
+  const trocoEl=g("ped-troco");
+  if(corrida.formaPgto==="Dinheiro"&&corrida.trocoPara){
+    trocoEl.textContent="Troco para: "+corrida.trocoPara;
+    trocoEl.style.display="block";
+  }else trocoEl.style.display="none";
+
+  // Observação
+  const obsEl=g("ped-obs");
+  if(corrida.obs){obsEl.textContent="📝 "+corrida.obs;obsEl.style.display="block";}else obsEl.style.display="none";
+
+  // Custo em créditos (estimado pela distância informada pelo passageiro)
+  const km=parseFloat(corrida.distanciaKm)||5;
+  const custoCred=calcularCreditoPorDistancia(km);
+  g("ped-credito-custo").textContent=custoCred+" créd.";
+  pedidoAtual._custoCredito=custoCred;
+
+  document.getElementById("modal-pedido").classList.add("show");
+  iniciarTimerPedido();
+}
+
+// ── TIMER DO PEDIDO ──
+function iniciarTimerPedido(){
+  _pedSeg=15;
+  const ring=document.getElementById("ped-sheet")?.querySelector(".ped-timer-ring");
+  atualizarTimerVisual();
+  if(timerPedido)clearInterval(timerPedido);
+  timerPedido=setInterval(()=>{
+    _pedSeg--;
+    atualizarTimerVisual();
+    if(_pedSeg<=0){recusarCorrida();}
+  },1000);
+}
+function atualizarTimerVisual(){
+  const num=document.getElementById("ped-timer");
+  if(num)num.textContent=_pedSeg;
+  const ring=document.querySelector(".ped-timer-ring");
+  if(ring){
+    const pct=(_pedSeg/15)*360;
+    ring.style.background=`conic-gradient(var(--dourado) ${pct}deg,var(--card2) ${pct}deg)`;
+  }
+}
+function pararTimerPedido(){if(timerPedido){clearInterval(timerPedido);timerPedido=null;}}
+
+// ── RECUSAR ──
+function recusarCorrida(){
+  pararTimerPedido();
+  document.getElementById("modal-pedido").classList.remove("show");
+  pedidoAtual=null;
+}
+
+// ── ACEITAR (com desconto de crédito) ──
+async function aceitarCorrida(){
+  if(!pedidoAtual)return;
+  pararTimerPedido();
+  const custoCred=pedidoAtual._custoCredito||1;
+  const credAtual=user.creditos||0;
+  if(credAtual<custoCred){
+    toast("Créditos insuficientes! Recarregue para aceitar corridas.");
+    recusarCorrida();
+    return;
+  }
+  loading(true);
+  try{
+    const novoCredito=credAtual-custoCred;
+    await db.collection("cj_corridas").doc(pedidoAtual.id).update({
+      status:"aceita",
+      motorista:{id:user.id,nome:user.nome,foto:user.foto||null,fone:user.fone,placa:user.placa,veiculo:user.veiculo,avaliacao:user.avaliacao||5.0,lat:posicaoAtual?posicaoAtual[0]:null,lng:posicaoAtual?posicaoAtual[1]:null},
+      creditoDescontado:custoCred,
+      aceitoEm:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection("cj_motoristas").doc(user.id).update({creditos:novoCredito});
+    user.creditos=novoCredito;
+    localStorage.setItem("cjm_user",JSON.stringify(user));
+
+    corridaAtiva={...pedidoAtual,id:pedidoAtual.id};pedidoAtual=null;
+    document.getElementById("modal-pedido").classList.remove("show");
+    if(unsubPedidos){unsubPedidos();unsubPedidos=null;}
+
+    loading(false);
+    atualizarCreditos();
+    toast(`Corrida aceita! ${custoCred} crédito(s) descontado(s). ✓`);
+    entrarTelaCorrida();
+  }catch(e){loading(false);toast("Erro ao aceitar: "+e.message);}
+}
+
+// ── DEVOLVER CRÉDITO (se corrida cancelada após aceita) ──
+async function devolverCredito(corridaId,valor){
+  if(!user||!valor)return;
+  try{
+    const novoCredito=(user.creditos||0)+valor;
+    await db.collection("cj_motoristas").doc(user.id).update({creditos:novoCredito});
+    user.creditos=novoCredito;
+    localStorage.setItem("cjm_user",JSON.stringify(user));
+    atualizarCreditos();
+    toast(valor+" crédito(s) devolvido(s) — corrida cancelada.");
+  }catch(e){}
+}
+
+
+// ── ATUALIZAR aceitarCorrida pra entrar na tela de corrida (estende a versão da Fatia 3) ──
+async function entrarTelaCorrida(){
+  if(!corridaAtiva)return;
+  const g=id=>document.getElementById(id);
+  g("pass-nome").textContent=corridaAtiva.clienteNome||"Passageiro";
+  g("pass-destino").textContent=corridaAtiva.destino||"--";
+  if(corridaAtiva.clienteFoto)g("pass-foto").innerHTML=`<img src="${corridaAtiva.clienteFoto}"/>`;
+  else g("pass-foto").innerHTML="<span>👤</span>";
+  if(corridaAtiva.obs){g("pass-obs").textContent="📝 "+corridaAtiva.obs;g("pass-obs").style.display="block";}else g("pass-obs").style.display="none";
+
+  const pgtoIcones={Dinheiro:"💵",Pix:"📱",Débito:"💳",Crédito:"💳"};
+  let txtPgto=(pgtoIcones[corridaAtiva.formaPgto]||"💰")+" "+(corridaAtiva.formaPgto||"Não informado");
+  if(corridaAtiva.formaPgto==="Dinheiro"&&corridaAtiva.trocoPara)txtPgto+=" · Troco p/ "+corridaAtiva.trocoPara;
+  g("corrida-pgto-info").textContent=txtPgto;
+
+  // Valor inicial sugerido
+  if(corridaAtiva.origemLat&&corridaAtiva.origemLng&&posicaoAtual){
+    const km=dKmMot(posicaoAtual[0],posicaoAtual[1],corridaAtiva.origemLat,corridaAtiva.origemLng);
+    g("valor-corrida").value=calcularValorPorDistancia(km).toFixed(2);
+  }else if(corridaAtiva.valorEstimado){
+    const v=parseFloat((corridaAtiva.valorEstimado||"").replace("R$","").replace(",",".").trim());
+    if(!isNaN(v))g("valor-corrida").value=v.toFixed(2);
+  }
+
+  statusAtual="a_caminho";
+  ["caminho","cheguei","no-carro","destino"].forEach((e,i)=>{
+    document.getElementById("etapa-"+e)?.classList.toggle("ativa",i===0);
+  });
+  g("corrida-status-txt").textContent="A caminho do passageiro";
+  pararContadorEspera();
+
+  mostrarTela("tela-corrida-mot");
+  iniciarMapaCorridaMot();
+  escutarCorridaAtivaMot(corridaAtiva.id);
+}
+
+// ── ETAPAS ──
+let statusAtual="a_caminho",_contEspera=null,_segEspera=0;
+async function mudarStatus(status){
+  if(!corridaAtiva)return;
+  statusAtual=status;
+  const etapas=["caminho","cheguei","no-carro","destino"];
+  const statusMap={a_caminho:"caminho",cheguei:"cheguei",no_carro:"no-carro",a_destino:"destino"};
+  const idx=etapas.indexOf(statusMap[status]);
+  etapas.forEach((e,i)=>{
+    const el=document.getElementById("etapa-"+e);
+    if(el)el.classList.toggle("ativa",i<=idx);
+  });
+  const textos={a_caminho:"A caminho do passageiro",cheguei:"Cheguei no local!",no_carro:"Passageiro no carro",a_destino:"A caminho do destino"};
+  document.getElementById("corrida-status-txt").textContent=textos[status]||status;
+
+  if(status==="cheguei")iniciarContadorEspera();
+  else pararContadorEspera();
+
+  try{
+    const upd={statusEtapa:status};
+    if(status==="cheguei")upd.status="motorista_chegou";
+    await db.collection("cj_corridas").doc(corridaAtiva.id).update(upd);
+  }catch(e){}
+}
+function iniciarContadorEspera(){
+  _segEspera=0;
+  document.getElementById("contador-espera").style.display="block";
+  if(_contEspera)clearInterval(_contEspera);
+  _contEspera=setInterval(()=>{
+    _segEspera++;
+    const m=Math.floor(_segEspera/60),s=_segEspera%60;
+    document.getElementById("contador-espera-num").textContent=m+":"+(s<10?"0":"")+s;
+  },1000);
+}
+function pararContadorEspera(){
+  if(_contEspera){clearInterval(_contEspera);_contEspera=null;}
+  document.getElementById("contador-espera").style.display="none";
+}
+
+// ── NAVEGAÇÃO ──
+function abrirNavegacao(){
+  if(!corridaAtiva)return;
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(corridaAtiva.destino)}&travelmode=driving`,"_blank");
+}
+
+// ── CONCLUIR CORRIDA ──
+async function concluirCorrida(){
+  const valor=parseFloat(document.getElementById("valor-corrida").value);
+  if(!valor||valor<=0){toast("Informe o valor da corrida");return;}
+  if(!corridaAtiva)return;
+  loading(true);
+  try{
+    await db.collection("cj_corridas").doc(corridaAtiva.id).update({status:"concluida",valor,concluidoEm:firebase.firestore.FieldValue.serverTimestamp()});
+    const ng=(user.totalGanhos||0)+valor,nco=(user.totalCorridas||0)+1;
+    await db.collection("cj_motoristas").doc(user.id).update({totalGanhos:ng,totalCorridas:nco});
+    user.totalGanhos=ng;user.totalCorridas=nco;
+    localStorage.setItem("cjm_user",JSON.stringify(user));
+
+    const cIdConcluida=corridaAtiva.id,nomeConcluido=corridaAtiva.clienteNome;
+    somCorridaConcluida();
+    pararContadorEspera();
+    if(unsubCorridaAtivaMot){unsubCorridaAtivaMot();unsubCorridaAtivaMot=null;}
+    if(unsubChatMot){unsubChatMot();unsubChatMot=null;}
+    corridaAtiva=null;
+    loading(false);
+    toast("Corrida concluída! 🎉");
+    // Avaliação obrigatória antes de continuar
+    setTimeout(()=>mostrarAvalMot(cIdConcluida,nomeConcluido),700);
+  }catch(e){loading(false);toast("Erro: "+e.message);}
+}
+
+// ── CANCELAR (com devolução de crédito) ──
+async function cancelarCorridaMotorista(){
+  if(!corridaAtiva)return;
+  loading(true);
+  try{
+    const credDevolver=corridaAtiva.creditoDescontado||0;
+    await db.collection("cj_corridas").doc(corridaAtiva.id).update({status:"cancelada_motorista"});
+    if(credDevolver>0)await devolverCredito(corridaAtiva.id,credDevolver);
+    pararContadorEspera();
+    if(unsubCorridaAtivaMot){unsubCorridaAtivaMot();unsubCorridaAtivaMot=null;}
+    if(unsubChatMot){unsubChatMot();unsubChatMot=null;}
+    corridaAtiva=null;
+    loading(false);
+    irPara("home");
+    if(online)escutarPedidos();
+  }catch(e){loading(false);irPara("home");}
+}
+
+// ── ESCUTAR CORRIDA ATIVA (detectar cancelamento do passageiro) ──
+let unsubCorridaAtivaMot=null;
+function escutarCorridaAtivaMot(id){
+  if(unsubCorridaAtivaMot)unsubCorridaAtivaMot();
+  unsubCorridaAtivaMot=db.collection("cj_corridas").doc(id).onSnapshot(snap=>{
+    const d=snap.data();if(!d)return;
+    if(d.status==="cancelada_cliente"){
+      toast("Passageiro cancelou a corrida.");
+      pararContadorEspera();
+      if(unsubCorridaAtivaMot){unsubCorridaAtivaMot();unsubCorridaAtivaMot=null;}
+      if(unsubChatMot){unsubChatMot();unsubChatMot=null;}
+      corridaAtiva=null;
+      irPara("home");
+      if(online)escutarPedidos();
+    }
+  });
+}
+
+// ── MAPA DA CORRIDA ──
+let mapaCorridaMot=null,marcDestinoMot=null;
+function iniciarMapaCorridaMot(){
+  if(!mapaCorridaMot){
+    mapaCorridaMot=L.map("mapa-corrida-mot",{zoomControl:true,attributionControl:false});
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18}).addTo(mapaCorridaMot);
+  }
+  setTimeout(()=>mapaCorridaMot.invalidateSize(),200);
+  if(posicaoAtual){
+    mapaCorridaMot.setView(posicaoAtual,14);
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 42" width="34" height="42"><circle cx="17" cy="9" r="8" fill="#fbbf24" stroke="#fff" stroke-width="2"/><path d="M3 40 Q3 25 17 23 Q31 25 31 40Z" fill="#fbbf24" stroke="#fff" stroke-width="2"/></svg>`;
+    L.marker(posicaoAtual,{icon:L.divIcon({html:`<div style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));">${svg}</div>`,className:"",iconSize:[34,42],iconAnchor:[17,40]})}).addTo(mapaCorridaMot);
+  }
+  if(corridaAtiva?.destinoLat&&corridaAtiva?.destinoLng){
+    marcDestinoMot=L.marker([corridaAtiva.destinoLat,corridaAtiva.destinoLng]).addTo(mapaCorridaMot);
+  }
+}
+
+// ── CHAT (motorista) ──
+let unsubChatMot=null;
+function iniciarChatMot(cId){
+  if(unsubChatMot)unsubChatMot();
+  unsubChatMot=db.collection("cj_corridas").doc(cId).collection("chat").orderBy("ts").onSnapshot(snap=>{
+    const msgs=document.getElementById("chat-msgs-mot");if(!msgs)return;
+    snap.docChanges().forEach(ch=>{
+      if(ch.type==="added"){
+        const m=ch.doc.data();
+        const isMinha=m.de==="motorista";
+        const div=document.createElement("div");
+        div.className="msg "+(isMinha?"minha":"dele");
+        div.innerHTML=m.texto+`<div class="msg-time">${m.ts?new Date(m.ts.toDate()).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"--"}</div>`;
+        msgs.appendChild(div);
+        msgs.scrollTop=msgs.scrollHeight;
+      }
+    });
+  });
+}
+function abrirChatMot(){
+  if(!corridaAtiva)return;
+  document.getElementById("modal-chat-mot").classList.add("show");
+  iniciarChatMot(corridaAtiva.id);
+}
+function fecharChatMot(){document.getElementById("modal-chat-mot").classList.remove("show");}
+async function enviarMsgMot(){
+  const inp=document.getElementById("chat-inp-mot");
+  const txt=inp.value.trim();
+  if(!txt||!corridaAtiva)return;
+  inp.value="";
+  try{
+    await db.collection("cj_corridas").doc(corridaAtiva.id).collection("chat").add({
+      texto:txt,de:"motorista",nome:user?.nome||"Motorista",ts:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }catch(e){toast("Erro ao enviar.");}
+}
+
+// ── AVALIAÇÃO OBRIGATÓRIA (motorista avalia passageiro) ──
+let _avalMotNota=5,_avalMotCorridaId=null;
+function mostrarAvalMot(corridaId,nomePassageiro){
+  _avalMotCorridaId=corridaId;_avalMotNota=5;
+  document.getElementById("aval-mot-nome").textContent=nomePassageiro||"o passageiro";
+  document.getElementById("aval-mot-comentario").value="";
+  selEstrelaMot(5);
+  document.getElementById("modal-aval-mot").classList.add("show");
+}
+function selEstrelaMot(n){
+  _avalMotNota=n;
+  document.querySelectorAll(".estrela-mot").forEach((e,i)=>e.classList.toggle("on",i<n));
+}
+async function enviarAvalMot(){
+  if(!_avalMotCorridaId)return;
+  const comentario=document.getElementById("aval-mot-comentario").value.trim();
+  loading(true);
+  try{
+    await db.collection("cj_corridas").doc(_avalMotCorridaId).update({
+      avaliacaoMotorista:_avalMotNota,
+      comentarioMotorista:comentario||null
+    });
+    // Atualiza o último comentário recebido pelo passageiro (se houver corrida + clienteId)
+    if(comentario){
+      try{
+        const cSnap=await db.collection("cj_corridas").doc(_avalMotCorridaId).get();
+        const cData=cSnap.data();
+        if(cData?.clienteId&&!cData.clienteId.startsWith("anon_")){
+          await db.collection("cj_passageiros").doc(cData.clienteId).update({ultimoComentario:comentario});
+        }
+      }catch(e){}
+    }
+    loading(false);
+    fecharAvalMot();
+    toast("Avaliação enviada! Obrigado. ⭐");
+    localStorage.removeItem("cjm_aval_pendente");
+    irPara("home");
+  }catch(e){loading(false);toast("Erro ao enviar avaliação.");}
+}
+function fecharAvalMot(){document.getElementById("modal-aval-mot").classList.remove("show");}
+
+
+// ── GANHOS COMPLETO ──
+async function carregarGanhos(){
+  if(!user)return;
+  const el=document.getElementById("lista-corridas-ganhos");
+  el.innerHTML="<div style='padding:20px;text-align:center;color:var(--muted);'>Carregando...</div>";
+  try{
+    const snap=await db.collection("cj_corridas").where("motorista.id","==",user.id).orderBy("criadoEm","desc").limit(30).get();
+    document.getElementById("total-ganhos").textContent="R$ "+(user.totalGanhos||0).toFixed(2).replace(".",",");
+    document.getElementById("total-corridas").textContent=user.totalCorridas||0;
+    document.getElementById("total-aval").textContent=user.avaliacao?"⭐ "+parseFloat(user.avaliacao).toFixed(1):"--";
+    document.getElementById("total-creditos").textContent="R$ "+(user.creditos||0).toFixed(0);
+    if(snap.empty){
+      el.innerHTML="<div style='padding:40px;text-align:center;color:var(--muted);'>Nenhuma corrida ainda</div>";
+    }else{
+      el.innerHTML=snap.docs.map(d=>{
+        const c=d.data();
+        const concluida=c.status==="concluida";
+        const sc=concluida?"s-concluida":"s-cancelada";
+        const sl=concluida?"CONCLUÍDA":"CANCELADA";
+        return `<div class="corrida-hist-card">
+          <div class="corrida-hist-top"><div class="corrida-hist-status ${sc}">${sl}</div><div class="corrida-hist-data">${fmtData(c.criadoEm)}</div></div>
+          <div class="corrida-hist-rota">${(c.origem||"Origem")} → ${c.destino||"--"}</div>
+          <div class="corrida-hist-bottom"><div class="corrida-hist-passageiro">${c.clienteNome||"Anônimo"}</div><div class="corrida-hist-valor">R$ ${parseFloat(c.valor||0).toFixed(2).replace(".",",")}</div></div>
+        </div>`;
+      }).join("");
+    }
+    montarGrafico(snap.docs);
+  }catch(e){el.innerHTML="<div style='padding:40px;text-align:center;color:var(--muted);'>Erro ao carregar</div>";}
+}
+
+// ── GRÁFICO (últimos 7 dias) ──
+function montarGrafico(docs){
+  const dias=[];
+  const hoje=new Date();
+  for(let i=6;i>=0;i--){
+    const d=new Date(hoje);d.setDate(d.getDate()-i);d.setHours(0,0,0,0);
+    dias.push({data:d,total:0,label:d.toLocaleDateString("pt-BR",{weekday:"short"}).replace(".","").slice(0,3)});
+  }
+  docs.forEach(doc=>{
+    const c=doc.data();
+    if(c.status!=="concluida"||!c.criadoEm)return;
+    const dt=c.criadoEm.toDate?c.criadoEm.toDate():new Date(c.criadoEm);
+    dt.setHours(0,0,0,0);
+    const dia=dias.find(d=>d.data.getTime()===dt.getTime());
+    if(dia)dia.total+=(c.valor||0);
+  });
+  const max=Math.max(...dias.map(d=>d.total),1);
+  const cont=document.getElementById("grafico-barras");
+  if(!cont)return;
+  cont.innerHTML=dias.map(d=>{
+    const altura=Math.max(3,(d.total/max)*90);
+    return `<div class="grafico-col"><div class="grafico-bar" style="height:${altura}px;" title="R$ ${d.total.toFixed(2)}"></div><div class="grafico-lb">${d.label}</div></div>`;
+  }).join("");
+}
+
+// ── META ──
+let metaPeriodoAtual="dia";
+function trocarPeriodoMeta(per){
+  metaPeriodoAtual=per;
+  document.querySelectorAll(".meta-per").forEach(b=>b.classList.toggle("ativo",b.dataset.per===per));
+  atualizarMetaView();
+}
+function abrirDefinirMeta(){
+  document.getElementById("meta-periodo-sel").value=metaPeriodoAtual;
+  const metas=JSON.parse(localStorage.getItem("cjm_metas")||"{}");
+  document.getElementById("meta-valor-input").value=metas[metaPeriodoAtual]||"";
+  document.getElementById("modal-meta").classList.add("show");
+}
+function salvarMeta(){
+  const per=document.getElementById("meta-periodo-sel").value;
+  const val=parseFloat(document.getElementById("meta-valor-input").value);
+  if(!val||val<=0){toast("Informe um valor válido");return;}
+  const metas=JSON.parse(localStorage.getItem("cjm_metas")||"{}");
+  metas[per]=val;
+  localStorage.setItem("cjm_metas",JSON.stringify(metas));
+  document.getElementById("modal-meta").classList.remove("show");
+  trocarPeriodoMeta(per);
+  toast("Meta salva! 🎯");
+}
+async function atualizarMetaView(){
+  const metas=JSON.parse(localStorage.getItem("cjm_metas")||"{}");
+  const alvo=metas[metaPeriodoAtual];
+  const semVal=document.getElementById("meta-sem-valor");
+  const comVal=document.getElementById("meta-com-valor");
+  if(!alvo){semVal.style.display="block";comVal.style.display="none";return;}
+  semVal.style.display="none";comVal.style.display="block";
+
+  // Calcular ganho do período
+  if(!user)return;
+  let inicio=new Date();
+  if(metaPeriodoAtual==="dia")inicio.setHours(0,0,0,0);
+  else if(metaPeriodoAtual==="semana"){const dia=inicio.getDay();inicio.setDate(inicio.getDate()-dia);inicio.setHours(0,0,0,0);}
+  else if(metaPeriodoAtual==="mes"){inicio.setDate(1);inicio.setHours(0,0,0,0);}
+
+  let atual=0;
+  try{
+    const snap=await db.collection("cj_corridas").where("motorista.id","==",user.id).where("status","==","concluida").get();
+    snap.docs.forEach(d=>{
+      const c=d.data();
+      const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+      if(dt>=inicio)atual+=(c.valor||0);
+    });
+  }catch(e){}
+
+  document.getElementById("meta-atual-val").textContent="R$ "+atual.toFixed(2).replace(".",",");
+  document.getElementById("meta-alvo-val").textContent="R$ "+alvo.toFixed(2).replace(".",",");
+  const pct=Math.min(100,(atual/alvo)*100);
+  document.getElementById("meta-barra-prog").style.width=pct+"%";
+
+  const flagKey="cjm_meta_atingida_"+metaPeriodoAtual+"_"+inicio.toDateString();
+  if(atual>=alvo&&!localStorage.getItem(flagKey)){
+    localStorage.setItem(flagKey,"1");
+    tocarSomMeta();
+  }
+}
+function tocarSomMeta(){
+  try{
+    const c=getAC();
+    [523,659,784,1047].forEach((f,i)=>{
+      const o=c.createOscillator(),g=c.createGain();
+      o.connect(g);g.connect(c.destination);
+      o.frequency.setValueAtTime(f,c.currentTime+i*0.12);
+      g.gain.setValueAtTime(0,c.currentTime+i*0.12);
+      g.gain.linearRampToValueAtTime(0.7,c.currentTime+i*0.12+0.01);
+      g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+i*0.12+0.3);
+      o.start(c.currentTime+i*0.12);o.stop(c.currentTime+i*0.12+0.35);
+    });
+  }catch(e){}
+  toast("🎉 Meta atingida! Parabéns!");
+  if("speechSynthesis"in window){
+    try{const u=new SpeechSynthesisUtterance("Parabéns! Meta atingida!");u.lang="pt-BR";speechSynthesis.speak(u);}catch(e){}
+  }
+}
+
+// ── PERFIL COMPLETO ──
+function atualizarPerfil(){
+  if(!user)return;
+  const g=id=>document.getElementById(id);
+  g("perf-nome").textContent=user.nome||"--";
+  const av=g("perf-av");
+  if(user.foto)av.innerHTML=`<img src="${user.foto}"/>`;
+  else g("perf-initial").textContent="🚗";
+
+  const tc=user.totalCorridas||0;
+  const {nivel,grad}=nivelPorCorridas(tc);
+  if(g("perf-nivel"))g("perf-nivel").textContent="Motorista "+nivel.split(" ")[1];
+  const ring=g("perf-av-ring");
+  if(ring)ring.style.setProperty("--nivel-grad",grad);
+
+  if(g("ps-corridas"))g("ps-corridas").textContent=tc;
+  if(g("ps-aval"))g("ps-aval").textContent=(user.avaliacao||5).toFixed(1);
+  if(g("ps-membro")){
+    let m="--";
+    if(user.criadoEm){const d=new Date(user.criadoEm);m=d.toLocaleDateString("pt-BR",{month:"short",year:"2-digit"});}
+    g("ps-membro").textContent=m;
+  }
+
+  if(g("pi-nome"))g("pi-nome").textContent=user.nome||"--";
+  if(g("pi-fone"))g("pi-fone").textContent=user.fone||"--";
+  if(g("pi-cpf"))g("pi-cpf").textContent=user.cpf||"Não informado";
+  const vMap={carro:"🚗 Carro",moto:"🏍️ Moto",van:"🚐 Van"};
+  if(g("pi-veiculo"))g("pi-veiculo").textContent=vMap[user.veiculo]||user.veiculo||"--";
+  if(g("pi-placa"))g("pi-placa").textContent=user.placa||"--";
+
+  // Alerta de avaliação baixa
+  const alerta=g("alerta-aval-baixa");
+  if(alerta)alerta.style.display=(user.avaliacao&&user.avaliacao<3.5)?"block":"none";
+}
+async function enviarExplicacaoAval(){
+  const txt=document.getElementById("explicacao-aval").value.trim();
+  if(!txt){toast("Escreva uma explicação antes de enviar");return;}
+  loading(true);
+  try{
+    await db.collection("cj_motoristas").doc(user.id).update({explicacaoAvaliacao:txt,explicacaoData:new Date().toISOString()});
+    loading(false);
+    toast("Explicação enviada ao administrador. ✓");
+    document.getElementById("explicacao-aval").value="";
+  }catch(e){loading(false);toast("Erro ao enviar.");}
+}
+
+function abrirEditarPerfilMot(){
+  if(!user)return;
+  document.getElementById("modal-editar-mot").classList.add("show");
+  document.getElementById("ed-nome-mot").value=user.nome||"";
+  document.getElementById("ed-fone-mot").value=user.fone||"";
+  document.getElementById("ed-cpf-mot").value=user.cpf||"";
+  document.getElementById("ed-veiculo-mot").value=user.veiculo||"carro";
+  document.getElementById("ed-placa-mot").value=user.placa||"";
+}
+async function salvarPerfilMot(){
+  const nome=document.getElementById("ed-nome-mot").value.trim();
+  const fone=document.getElementById("ed-fone-mot").value.trim();
+  const cpf=document.getElementById("ed-cpf-mot").value.trim();
+  const veiculo=document.getElementById("ed-veiculo-mot").value;
+  const placa=document.getElementById("ed-placa-mot").value.trim().toUpperCase();
+  if(!nome){toast("Informe seu nome");return;}
+  if(cpf&&!validarCPF(cpf)){toast("CPF inválido");return;}
+  loading(true);
+  try{
+    const upd={nome,fone,cpf,veiculo,placa};
+    await db.collection("cj_motoristas").doc(user.id).update(upd);
+    Object.assign(user,upd);
+    localStorage.setItem("cjm_user",JSON.stringify(user));
+    atualizarPerfil();atualizarHome();
+    document.getElementById("modal-editar-mot").classList.remove("show");
+    loading(false);
+    toast("Perfil atualizado! ✓");
+  }catch(e){loading(false);toast("Erro ao salvar.");}
+}
+function atualizarFotoPerfilMot(inp){
+  const f=inp.files[0];if(!f||!user)return;cropCtx="perfilmot";
+  const r=new FileReader();
+  r.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      cropImg=img;
+      const cw=260,ch=260,sw=cw/img.naturalWidth,sh=ch/img.naturalHeight;
+      cropBaseScale=Math.max(sw,sh);
+      cropBaseX=(cw-img.naturalWidth*cropBaseScale)/2;
+      cropBaseY=(ch-img.naturalHeight*cropBaseScale)/2;
+      cropScale=1;cropTX=0;cropTY=0;
+      desenharCrop();
+      document.getElementById("crop-overlay").style.display="flex";
+    };
+    img.src=e.target.result;
+  };
+  r.readAsDataURL(f);
+  inp.value="";
+}
+
+
+// ── COMPRAR CRÉDITOS ──
+let _credValorSel=100;
+function abrirComprarCreditosMot(){
+  document.getElementById("cred-valor-custom").value="";
+  document.getElementById("modal-cred-mot").classList.add("show");
+}
+function selCredValor(v,btn){
+  _credValorSel=v;
+  document.querySelectorAll(".cred-op").forEach(b=>b.classList.remove("ativo"));
+  btn.classList.add("ativo");
+  document.getElementById("cred-valor-custom").value="";
+}
+function copiarPixMot(){
+  navigator.clipboard.writeText("19982480386").then(()=>toast("Chave Pix copiada!")).catch(()=>toast("Chave: 19982480386"));
+}
+function avisarPagamentoMot(){
+  const custom=parseFloat(document.getElementById("cred-valor-custom").value);
+  const valor=custom>0?custom:_credValorSel;
+  const saldoAtual=user?.creditos||0;
+  if(saldoAtual+valor>CREDITO_MAX){
+    toast(`Saldo máximo é R$ ${CREDITO_MAX}. Você já tem R$ ${saldoAtual.toFixed(2)}.`);
+    return;
+  }
+  const msg=encodeURIComponent(`Olá! Fiz um Pix de R$ ${valor.toFixed(2)} para adicionar créditos no Corrida Já.\nMotorista: ${user?.nome||""}\nWhatsApp: ${user?.fone||""}`);
+  window.open(`https://wa.me/5519982480386?text=${msg}`,"_blank");
+}
+
+// ── PWA ──
+(function(){
+  const logoUrl="https://raw.githubusercontent.com/heitorserra-81/CORRIDA-JA-Motorista/refs/heads/main/IMG_0865.png";
+  document.getElementById("pwa-logo-img").src=logoUrl;
+  if(document.getElementById("apple-icon"))document.getElementById("apple-icon").href=logoUrl;
+  const m={name:"Corrida Já Motorista",short_name:"CJ Motorista",start_url:"./",display:"standalone",background_color:"#080f1e",theme_color:"#0f1a2e",lang:"pt-BR",icons:[{src:logoUrl,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
+  document.getElementById("manifest-link").href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/json"}));
+  if("serviceWorker"in navigator){
+    const sw=`const C="cjm-v1";self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(["./"])));self.skipWaiting();});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
+    navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"})),{scope:"./"}).catch(()=>{});
+  }
+  const dismissed=localStorage.getItem("cjm_pwa_ok");
+  const standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+  let dp=null;
+  window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;if(!standalone&&!dismissed)setTimeout(()=>{document.getElementById("pwa-banner").classList.add("show");setTimeout(()=>document.getElementById("pwa-banner").classList.remove("show"),5000);},3000);});
+  document.getElementById("btn-inst").addEventListener("click",async()=>{if(!dp)return;dp.prompt();const{outcome}=await dp.userChoice;dp=null;fecharPWA();if(outcome==="accepted")localStorage.setItem("cjm_pwa_ok","1");});
+  if(isIOS&&!standalone&&!dismissed)setTimeout(()=>{document.getElementById("ios-guide").classList.add("show");setTimeout(()=>document.getElementById("ios-guide").classList.remove("show"),8000);},3000);
+})();
+function fecharPWA(){document.getElementById("pwa-banner").classList.remove("show");document.getElementById("ios-guide").classList.remove("show");localStorage.setItem("cjm_pwa_ok","1");}
 </script>
 </body>
 </html>
