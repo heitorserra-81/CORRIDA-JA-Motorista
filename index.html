@@ -1383,7 +1383,7 @@ async function entrar(){
     }
     user=dados;localStorage.setItem("cjm_user",JSON.stringify(user));
     loading(false);irPara("home");
-  }catch(e){loading(false);toast("Erro ao entrar.");}
+  }catch(e){loading(false);toast("Erro: "+e.message);}
 }
 function sair(){
   localStorage.removeItem("cjm_user");
