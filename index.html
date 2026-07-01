@@ -546,20 +546,28 @@ input[type=file]{display:none;}
 .cred-op{padding:10px 4px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
 .cred-op.ativo{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
 /* CARDS WIDGET (home customizável) */
-#cards-container{display:flex;flex-direction:column;gap:10px;margin:0 16px 12px;}
+#cards-container{display:flex;flex-wrap:wrap;gap:10px;margin:0 16px 12px;position:relative;}
 #cards-container.reordenando{overflow:visible;}
-.card-widget{position:relative;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px;cursor:pointer;transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease;overflow:hidden;}
-.card-widget.drag-ativo{transform:scale(1.04) translateY(-4px)!important;z-index:1000;box-shadow:0 20px 44px rgba(251,191,36,0.35),0 10px 20px rgba(0,0,0,0.5)!important;filter:brightness(1.1);transition:none!important;touch-action:none;}
+.card-widget{position:relative;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px;cursor:pointer;box-sizing:border-box;}
+.card-widget.tam-1{width:100%;}
+.card-widget.tam-2{width:calc(50% - 5px);}
+.card-widget.tam-3{width:calc(33.333% - 7px);}
+.card-widget:not(.drag-ativo){transition:transform 0.25s cubic-bezier(.2,.9,.3,1.3),box-shadow 0.25s ease;}
+.card-widget.drag-ativo{
+  position:fixed!important;z-index:9500;
+  box-shadow:0 24px 50px rgba(251,191,36,0.4),0 14px 26px rgba(0,0,0,0.55)!important;
+  filter:brightness(1.12);
+  transform:scale(1.06) rotate(-1.5deg)!important;
+  transition:box-shadow 0.2s ease,filter 0.2s ease!important;
+  pointer-events:none;
+}
+.card-widget-placeholder{border-radius:18px;border:2px dashed var(--border);background:rgba(251,191,36,0.04);box-sizing:border-box;}
 .card-widget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.card-widget-titulo{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;}
-.card-widget-icon{font-size:16px;}
-.card-widget-val{font-size:24px;font-weight:900;color:var(--dourado);}
-.card-widget-sub{font-size:11px;color:var(--muted);margin-top:3px;}
-.card-widget.tam-p .card-widget-val{font-size:19px;}
-.card-widget.tam-g{padding:20px;}
-.card-widget.tam-g .card-widget-val{font-size:30px;}
-.card-widget-row{display:flex;gap:10px;}
-.card-widget-row .card-widget{flex:1;margin:0;}
+.card-widget-titulo{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-widget-icon{font-size:16px;flex-shrink:0;}
+.card-widget-val{font-size:22px;font-weight:900;color:var(--dourado);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-widget-sub{font-size:11px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.card-widget.tam-3 .card-widget-val{font-size:17px;}
 /* CONFIGURAÇÕES */
 .config-card-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px;margin:0 16px 9px;}
 .config-card-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0;}
@@ -1270,7 +1278,15 @@ function toast(msg){const el=document.getElementById("toast");el.textContent=msg
 function loading(s){document.getElementById("loading").classList.toggle("show",s);}
 
 // ── NAVEGAÇÃO ──
-function mostrarTela(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("ativo"));const el=document.getElementById(id);if(el)el.classList.add("ativo");}
+function mostrarTela(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("ativo"));
+  const el=document.getElementById(id);
+  if(el)el.classList.add("ativo");
+  // Garantia: qualquer troca de tela sempre fecha o menu e qualquer overlay preso
+  const ov=document.getElementById("menu-overlay"),ml=document.getElementById("menu-lateral");
+  if(ov)ov.style.display="none";
+  if(ml)ml.style.display="none";
+}
 function irPara(dest){
   fecharMenu();
   switch(dest){
@@ -1298,7 +1314,11 @@ function atualizarHome(){
 
 // ── MENU ──
 function abrirMenu(){document.getElementById("menu-overlay").style.display="block";document.getElementById("menu-lateral").style.display="block";}
-function fecharMenu(){document.getElementById("menu-overlay").style.display="none";document.getElementById("menu-lateral").style.display="none";}
+function fecharMenu(){
+  const ov=document.getElementById("menu-overlay"),ml=document.getElementById("menu-lateral");
+  if(ov)ov.style.display="none";
+  if(ml)ml.style.display="none";
+}
 
 // ── FOTO (crop completo) ──
 let _cropPrevId=null,_cropTxtId=null;
@@ -1840,8 +1860,12 @@ async function aceitarCorrida(){
   const custoCred=pedidoAtual._custoCredito||1;
   const credAtual=user.creditos||0;
   if(credAtual<custoCred){
-    toast("Créditos insuficientes! Recarregue para aceitar corridas.");
-    recusarCorrida();
+    pararTimerPedido();
+    document.getElementById("modal-pedido").classList.remove("show");
+    pedidoAtual=null;
+    setTimeout(()=>{
+      alert("😅 Ih, você não tem créditos suficientes pra aceitar essa corrida!\n\nRecarregue seus créditos para continuar recebendo pedidos.");
+    },300);
     return;
   }
   loading(true);
@@ -2443,7 +2467,7 @@ function getConfigCards(){
     if(s)return JSON.parse(s);
   }catch(e){}
   // padrão inicial: NENHUM card ativo (home começa vazia até o motorista escolher)
-  const def=CARDS_DISPONIVEIS.map((c,i)=>({id:c.id,ativo:false,tam:"m",ordem:i}));
+  const def=CARDS_DISPONIVEIS.map((c,i)=>({id:c.id,ativo:false,tam:1,ordem:i}));
   localStorage.setItem("cjm_cards",JSON.stringify(def));
   return def;
 }
@@ -2469,7 +2493,8 @@ async function renderCardsHome(){
     const info=CARDS_DISPONIVEIS.find(x=>x.id===c.id);
     if(!info)return"";
     const d=dados[c.id]||{val:"--",sub:""};
-    return `<div class="card-widget tam-${c.tam||'m'}" data-idx="${i}" data-id="${c.id}" ontouchstart="iniciaDragCard(event,${i})" ontouchmove="moveDragCard(event)" ontouchend="fimDragCard(event)">
+    const tam=c.tam||1;
+    return `<div class="card-widget tam-${tam}" data-idx="${i}" data-id="${c.id}" ontouchstart="iniciaDragCard(event,${i})" ontouchmove="moveDragCard(event)" ontouchend="fimDragCard(event)">
       <div class="card-widget-header"><div class="card-widget-titulo">${info.nome}</div><div class="card-widget-icon">${info.icon}</div></div>
       <div class="card-widget-val">${d.val}</div>
       <div class="card-widget-sub">${d.sub}</div>
@@ -2516,67 +2541,92 @@ async function calcularDadosCards(){
   return dados;
 }
 
-// ── DRAG VERTICAL DOS CARDS ──
-let _cardDragTO=null,_cardDragging=false,_cardDragIdx=null,_cardDragEl=null,_cardDragMoved=false,_cardDragStartY=0;
+// ── DRAG DOS CARDS (segue o dedo de verdade, position:fixed) ──
+let _cardDragTO=null,_cardDragging=false,_cardDragIdx=null,_cardDragEl=null,_cardDragMoved=false;
+let _cardDragStartX=0,_cardDragStartY=0,_cardOffsetX=0,_cardOffsetY=0,_cardW=0,_cardH=0,_cardPlaceholder=null;
+
 function iniciaDragCard(e,idx){
   const t=e.touches?e.touches[0]:e;
-  _cardDragStartY=t.clientY;_cardDragMoved=false;
+  _cardDragStartX=t.clientX;_cardDragStartY=t.clientY;_cardDragMoved=false;
   clearTimeout(_cardDragTO);
   _cardDragTO=setTimeout(()=>{
     if(_cardDragMoved)return;
     _cardDragging=true;_cardDragIdx=idx;
     _cardDragEl=document.querySelector(`.card-widget[data-idx="${idx}"]`);
+    if(!_cardDragEl)return;
+    const r=_cardDragEl.getBoundingClientRect();
+    _cardW=r.width;_cardH=r.height;
+    _cardOffsetX=t.clientX-r.left;_cardOffsetY=t.clientY-r.top;
+
+    // placeholder ocupa o lugar do card enquanto ele "flutua"
+    _cardPlaceholder=document.createElement("div");
+    _cardPlaceholder.className="card-widget-placeholder "+_cardDragEl.className.replace("card-widget","").trim();
+    _cardPlaceholder.style.width=r.width+"px";
+    _cardPlaceholder.style.height=r.height+"px";
+    _cardDragEl.parentNode.insertBefore(_cardPlaceholder,_cardDragEl);
+
+    _cardDragEl.style.width=r.width+"px";
+    _cardDragEl.style.height=r.height+"px";
+    _cardDragEl.style.left=r.left+"px";
+    _cardDragEl.style.top=r.top+"px";
+    _cardDragEl.classList.add("drag-ativo");
+
     const cont=document.getElementById("cards-container");
     if(cont)cont.classList.add("reordenando");
-    if(_cardDragEl)_cardDragEl.classList.add("drag-ativo");
     if(getConfigPref("vibra",true)&&navigator.vibrate)navigator.vibrate([50,20,50]);
-  },550);
+  },500);
 }
+
 function moveDragCard(e){
   const t=e.touches?e.touches[0]:e;
   if(!_cardDragging){
-    const dy=Math.abs(t.clientY-_cardDragStartY);
-    if(dy>10){_cardDragMoved=true;clearTimeout(_cardDragTO);}
+    const dx=Math.abs(t.clientX-_cardDragStartX),dy=Math.abs(t.clientY-_cardDragStartY);
+    if(dx>10||dy>10){_cardDragMoved=true;clearTimeout(_cardDragTO);}
     return;
   }
   e.preventDefault();
-  const y=t.clientY;
+  if(!_cardDragEl)return;
+
+  // O card flutuante segue o dedo de verdade (posição real, sem deformar)
+  _cardDragEl.style.left=(t.clientX-_cardOffsetX)+"px";
+  _cardDragEl.style.top=(t.clientY-_cardOffsetY)+"px";
+
+  // Detectar sobre qual outro card o dedo está passando, pra trocar o placeholder de lugar
   const cont=document.getElementById("cards-container");
   const items=[...cont.querySelectorAll(".card-widget:not(.drag-ativo)")];
-  items.forEach(item=>{
+  for(const item of items){
     const r=item.getBoundingClientRect();
-    if(y>r.top+r.height*0.25&&y<r.bottom-r.height*0.25){
-      const j=parseInt(item.dataset.idx);
-      if(j===_cardDragIdx)return;
-      const cards=getConfigCards().filter(c=>c.ativo).sort((a,b)=>a.ordem-b.ordem);
-      const todos=getConfigCards();
-      const tmp=cards[_cardDragIdx].ordem;
-      cards[_cardDragIdx].ordem=cards[j].ordem;
-      cards[j].ordem=tmp;
-      // aplicar de volta na lista completa
-      cards.forEach(c=>{const idx2=todos.findIndex(t2=>t2.id===c.id);if(idx2>=0)todos[idx2]=c;});
-      saveConfigCards(todos);
-      _cardDragIdx=j;
-      renderCardsHome().then(()=>{
-        const cont2=document.getElementById("cards-container");
-        if(cont2)cont2.classList.add("reordenando");
-        const novoEl=document.querySelector(`.card-widget[data-idx="${j}"]`);
-        if(novoEl){novoEl.classList.add("drag-ativo");_cardDragEl=novoEl;}
-      });
-      if(getConfigPref("vibra",true)&&navigator.vibrate)navigator.vibrate(15);
+    if(t.clientX>r.left&&t.clientX<r.right&&t.clientY>r.top&&t.clientY<r.bottom){
+      const rectPh=_cardPlaceholder.getBoundingClientRect();
+      const goingDown=r.top>rectPh.top||(r.top===rectPh.top&&r.left>rectPh.left);
+      if(goingDown)item.after(_cardPlaceholder);else item.before(_cardPlaceholder);
+      break;
     }
-  });
+  }
 }
+
 function fimDragCard(e){
   clearTimeout(_cardDragTO);
   const cont=document.getElementById("cards-container");
   if(cont)cont.classList.remove("reordenando");
-  if(_cardDragging){
+  if(_cardDragging&&_cardDragEl&&_cardPlaceholder){
     _cardDragging=false;
-    document.querySelectorAll(".card-widget.drag-ativo").forEach(el=>el.classList.remove("drag-ativo"));
+    // Salvar nova ordem com base na posição final do placeholder no DOM
+    _cardPlaceholder.replaceWith(_cardDragEl);
+    _cardDragEl.classList.remove("drag-ativo");
+    _cardDragEl.style.position="";_cardDragEl.style.left="";_cardDragEl.style.top="";_cardDragEl.style.width="";_cardDragEl.style.height="";
+
+    const novaOrdemIds=[...cont.querySelectorAll(".card-widget")].map(el=>el.dataset.id);
+    const todos=getConfigCards();
+    novaOrdemIds.forEach((id,i)=>{
+      const c=todos.find(x=>x.id===id);
+      if(c)c.ordem=i;
+    });
+    saveConfigCards(todos);
+    if(getConfigPref("vibra",true)&&navigator.vibrate)navigator.vibrate(15);
     renderCardsHome();
   }
-  _cardDragEl=null;_cardDragMoved=false;
+  _cardDragEl=null;_cardPlaceholder=null;_cardDragMoved=false;
 }
 
 // ── TELA DE CONFIGURAÇÕES ──
@@ -2585,16 +2635,17 @@ function renderConfigCards(){
   if(!el)return;
   const cards=getConfigCards();
   el.innerHTML=CARDS_DISPONIVEIS.map(info=>{
-    const c=cards.find(x=>x.id===info.id)||{ativo:false,tam:"m"};
+    const c=cards.find(x=>x.id===info.id)||{ativo:false,tam:1};
+    const tam=c.tam||1;
     return `<div class="config-card-item">
       <div class="config-card-icon">${info.icon}</div>
       <div class="config-card-info">
         <div class="config-card-nome">${info.nome}</div>
         <div class="config-card-desc">${info.desc}</div>
         ${c.ativo?`<div class="config-tam-sel">
-          <button class="config-tam-btn ${c.tam==='p'?'ativo':''}" onclick="setTamCard('${info.id}','p')">Pequeno</button>
-          <button class="config-tam-btn ${(c.tam==='m'||!c.tam)?'ativo':''}" onclick="setTamCard('${info.id}','m')">Médio</button>
-          <button class="config-tam-btn ${c.tam==='g'?'ativo':''}" onclick="setTamCard('${info.id}','g')">Grande</button>
+          <button class="config-tam-btn ${tam===1?'ativo':''}" onclick="setTamCard('${info.id}',1)">Linha inteira</button>
+          <button class="config-tam-btn ${tam===2?'ativo':''}" onclick="setTamCard('${info.id}',2)">Metade (2 lado a lado)</button>
+          <button class="config-tam-btn ${tam===3?'ativo':''}" onclick="setTamCard('${info.id}',3)">Terço (3 lado a lado)</button>
         </div>`:""}
       </div>
       <div class="config-toggle ${c.ativo?'on':''}" onclick="toggleCard('${info.id}')"></div>
@@ -2606,7 +2657,8 @@ function toggleCard(id){
   const c=cards.find(x=>x.id===id);
   if(c){
     c.ativo=!c.ativo;
-    if(c.ativo&&(c.ordem===undefined))c.ordem=Math.max(...cards.map(x=>x.ordem||0))+1;
+    if(c.ativo&&!c.tam)c.tam=1;
+    if(c.ativo&&(c.ordem===undefined||c.ordem===null))c.ordem=Math.max(0,...cards.map(x=>x.ordem||0))+1;
     saveConfigCards(cards);
     renderConfigCards();
     if(getConfigPref("vibra",true)&&navigator.vibrate)navigator.vibrate(20);
