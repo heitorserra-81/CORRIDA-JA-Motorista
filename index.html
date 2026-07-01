@@ -1272,6 +1272,7 @@ function loading(s){document.getElementById("loading").classList.toggle("show",s
 // ── NAVEGAÇÃO ──
 function mostrarTela(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("ativo"));const el=document.getElementById(id);if(el)el.classList.add("ativo");}
 function irPara(dest){
+  fecharMenu();
   switch(dest){
     case"home":
       mostrarTela("tela-home");
@@ -2437,10 +2438,12 @@ const CARDS_DISPONIVEIS=[
 ];
 
 function getConfigCards(){
-  const s=localStorage.getItem("cjm_cards");
-  if(s)return JSON.parse(s);
-  // padrão inicial: alguns cards já ativos
-  const def=CARDS_DISPONIVEIS.map((c,i)=>({id:c.id,ativo:["meta_dia","corridas_hoje","avaliacao"].includes(c.id),tam:"m",ordem:i}));
+  try{
+    const s=localStorage.getItem("cjm_cards");
+    if(s)return JSON.parse(s);
+  }catch(e){}
+  // padrão inicial: NENHUM card ativo (home começa vazia até o motorista escolher)
+  const def=CARDS_DISPONIVEIS.map((c,i)=>({id:c.id,ativo:false,tam:"m",ordem:i}));
   localStorage.setItem("cjm_cards",JSON.stringify(def));
   return def;
 }
