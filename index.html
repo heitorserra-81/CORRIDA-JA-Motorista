@@ -415,7 +415,7 @@ input[type=file]{display:none;}
 #loading.show{display:flex;}
 .ld-spin{width:44px;height:44px;border:3px solid rgba(251,191,36,0.12);border-top-color:var(--dourado);border-radius:50%;animation:spin 0.8s linear infinite;}
 /* TOGGLE ONLINE */
-.toggle-wrap{display:flex;align-items:center;justify-content:space-between;margin:0 16px 12px;padding:16px 18px;background:var(--card);border:1px solid var(--border);border-radius:18px;}
+.toggle-wrap{display:flex;align-items:center;justify-content:space-between;margin:14px 16px 12px;padding:16px 18px;background:var(--card);border:1px solid var(--border);border-radius:18px;}
 .toggle-info strong{display:block;font-size:14px;color:#fff;}
 .toggle-info span{font-size:11px;color:var(--muted);}
 .toggle-btn{position:relative;width:54px;height:30px;border-radius:15px;background:var(--card2);border:2px solid var(--border);cursor:pointer;transition:background 0.3s;flex-shrink:0;}
@@ -545,6 +545,37 @@ input[type=file]{display:none;}
 .cred-opcoes{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
 .cred-op{padding:10px 4px;border-radius:11px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
 .cred-op.ativo{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
+/* CARDS WIDGET (home customizável) */
+#cards-container{display:flex;flex-direction:column;gap:10px;margin:0 16px 12px;}
+#cards-container.reordenando{overflow:visible;}
+.card-widget{position:relative;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px;cursor:pointer;transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease;overflow:hidden;}
+.card-widget.drag-ativo{transform:scale(1.04) translateY(-4px)!important;z-index:1000;box-shadow:0 20px 44px rgba(251,191,36,0.35),0 10px 20px rgba(0,0,0,0.5)!important;filter:brightness(1.1);transition:none!important;touch-action:none;}
+.card-widget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.card-widget-titulo{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;}
+.card-widget-icon{font-size:16px;}
+.card-widget-val{font-size:24px;font-weight:900;color:var(--dourado);}
+.card-widget-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+.card-widget.tam-p .card-widget-val{font-size:19px;}
+.card-widget.tam-g{padding:20px;}
+.card-widget.tam-g .card-widget-val{font-size:30px;}
+.card-widget-row{display:flex;gap:10px;}
+.card-widget-row .card-widget{flex:1;margin:0;}
+/* CONFIGURAÇÕES */
+.config-card-item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px;margin:0 16px 9px;}
+.config-card-icon{font-size:22px;width:32px;text-align:center;flex-shrink:0;}
+.config-card-info{flex:1;min-width:0;}
+.config-card-nome{font-size:13px;font-weight:700;color:#fff;}
+.config-card-desc{font-size:11px;color:var(--muted);margin-top:1px;}
+.config-toggle{position:relative;width:46px;height:26px;border-radius:13px;background:var(--card2);border:2px solid var(--border);cursor:pointer;flex-shrink:0;transition:background 0.25s;}
+.config-toggle::before{content:"";position:absolute;top:1px;left:1px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform 0.25s,background 0.25s;}
+.config-toggle.on{background:rgba(34,197,94,0.25);border-color:var(--verde);}
+.config-toggle.on::before{transform:translateX(20px);background:var(--verde);}
+.config-tam-sel{display:flex;gap:5px;margin-top:8px;}
+.config-tam-btn{flex:1;padding:6px;border-radius:8px;background:var(--card2);border:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;}
+.config-tam-btn.ativo{background:rgba(251,191,36,0.15);border-color:var(--dourado);color:var(--dourado);}
+.config-toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px 15px;margin:0 16px 9px;}
+.config-toggle-nome{font-size:13px;font-weight:700;color:#fff;}
+.config-toggle-desc{font-size:11px;color:var(--muted);margin-top:1px;}
 </style></head>
 <body>
 <!-- CANVAS PARTÍCULAS -->
@@ -645,6 +676,8 @@ input[type=file]{display:none;}
       <div class="toggle-btn" id="toggle-btn" onclick="alternarOnline()"></div>
     </div>
   </div>
+
+  <div id="cards-container"></div>
 
   <div class="creditos-bar" onclick="abrirComprarCreditosMot()" style="cursor:pointer;">
     <div class="creditos-top"><div class="creditos-label">Créditos · toque para recarregar</div><div class="creditos-val" id="creditos-val">R$ 0,00</div></div>
@@ -865,9 +898,9 @@ input[type=file]{display:none;}
       <div style="font-size:13px;color:var(--text);line-height:1.6;">O Corrida Já conecta você a passageiros da sua região. Fique online, receba pedidos, acompanhe seus ganhos e atenda com segurança.</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
-      <div class="sobre-row"><span>💳</span><div><div class="sobre-lb">Créditos</div><div class="sobre-vl">Necessários para receber pedidos de corrida</div></div></div>
-      <div class="sobre-row"><span>📍</span><div><div class="sobre-lb">Cobertura</div><div class="sobre-vl">Holambra, Jaguariúna, Arthur Nogueira e região</div></div></div>
-      <div class="sobre-row"><span>💬</span><div><div class="sobre-lb">Suporte</div><div class="sobre-vl">WhatsApp (19) 98248-0386</div></div></div>
+      <div class="sobre-row" onclick="document.getElementById('modal-sobre').classList.remove('show');abrirComprarCreditosMot();" style="cursor:pointer;"><span>💳</span><div><div class="sobre-lb">Créditos</div><div class="sobre-vl">Toque para comprar créditos</div></div></div>
+      <div class="sobre-row" onclick="abrirCoberturaMot()" style="cursor:pointer;"><span>📍</span><div><div class="sobre-lb">Cobertura</div><div class="sobre-vl">Holambra, Jaguariúna, Arthur Nogueira e região</div></div></div>
+      <div class="sobre-row" onclick="window.open('https://wa.me/5519982480386?text='+encodeURIComponent('Olá! Preciso de suporte no Corrida Já (Motorista).'),'_blank')" style="cursor:pointer;"><span>💬</span><div><div class="sobre-lb">Suporte</div><div class="sobre-vl">Toque para falar no WhatsApp</div></div></div>
     </div>
     <button class="btn-p" onclick="document.getElementById('modal-sobre').classList.remove('show');document.getElementById('modal-termos').classList.add('show')" style="width:100%;margin-bottom:9px;background:var(--card2);color:var(--dourado);border:1px solid var(--border);">📄 Termos de Uso</button>
     <button class="btn-cancel" onclick="document.getElementById('modal-sobre').classList.remove('show')" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>
@@ -914,6 +947,7 @@ input[type=file]{display:none;}
     <div class="menu-item" onclick="fecharMenu();irPara('ganhos')">💰 Meus ganhos</div>
     <div class="menu-item" onclick="abrirHistoricoMot();fecharMenu()">🕐 Histórico de corridas</div>
     <div class="menu-item" onclick="fecharMenu();irPara('perfil')">👤 Meu perfil</div>
+    <div class="menu-item" onclick="fecharMenu();irPara('config')">⚙️ Configurações</div>
     <div class="menu-sep"></div>
     <div class="menu-item" onclick="abrirSobre();fecharMenu()">ℹ️ Sobre o aplicativo</div>
     <div class="menu-sep"></div>
@@ -1072,6 +1106,35 @@ input[type=file]{display:none;}
   </div>
 </div>
 
+<!-- TELA CONFIGURAÇÕES -->
+<div class="screen" id="tela-config">
+  <div class="perf-hdr">
+    <button onclick="irPara('home')" style="background:none;border:none;color:var(--dourado);font-size:22px;cursor:pointer;padding:3px;">←</button>
+    <h2 style="margin:0;">Configurações</h2>
+    <div style="width:30px;"></div>
+  </div>
+
+  <div class="perf-sec-tit">Cards da tela inicial</div>
+  <div style="margin:0 16px 12px;font-size:11px;color:var(--muted);">Ative os cards que quiser ver na tela inicial. Segure e arraste um card para reordenar.</div>
+  <div id="lista-config-cards"></div>
+
+  <div class="perf-sec-tit">Preferências</div>
+  <div class="config-toggle-row">
+    <div><div class="config-toggle-nome">🔊 Som de novo pedido</div><div class="config-toggle-desc">Toca som e voz ao receber pedido</div></div>
+    <div class="config-toggle" id="cfg-som" onclick="toggleConfigPref('som')"></div>
+  </div>
+  <div class="config-toggle-row">
+    <div><div class="config-toggle-nome">📳 Vibração</div><div class="config-toggle-desc">Vibra ao reordenar cards e receber pedidos</div></div>
+    <div class="config-toggle" id="cfg-vibra" onclick="toggleConfigPref('vibra')"></div>
+  </div>
+  <div class="config-toggle-row">
+    <div><div class="config-toggle-nome">🔔 Notificações push</div><div class="config-toggle-desc">Avisar mesmo com o app em segundo plano</div></div>
+    <div class="config-toggle" id="cfg-notif" onclick="toggleConfigPref('notif')"></div>
+  </div>
+
+  <div style="height:24px;"></div>
+</div>
+
 <!-- MODAL PEDIDO DE CORRIDA -->
 <div class="modal-base" id="modal-pedido">
   <div class="modal-sheet" id="ped-sheet">
@@ -1214,11 +1277,12 @@ function irPara(dest){
       mostrarTela("tela-home");
       iniciarMapaHome();
       iniciarGPSInicial();
-      setTimeout(()=>{atualizarHome();atualizarCreditos();carregarGanhosHome();carregarHistHome();},50);
+      setTimeout(()=>{atualizarHome();atualizarCreditos();carregarGanhosHome();carregarHistHome();renderCardsHome();},50);
       setTimeout(()=>{if(mapaHome)mapaHome.invalidateSize();},400);
       break;
     case"perfil":mostrarTela("tela-perfil");setTimeout(()=>atualizarPerfil(),50);break;
     case"ganhos":mostrarTela("tela-ganhos");setTimeout(()=>{carregarGanhos();atualizarMetaView();},50);break;
+    case"config":mostrarTela("tela-config");setTimeout(()=>abrirTelaConfig(),50);break;
   }
 }
 function atualizarHome(){
@@ -1573,6 +1637,7 @@ function getAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)
 function nota(f,s,d,v=.7){try{const c=getAC(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.setValueAtTime(f,c.currentTime+s);g.gain.setValueAtTime(0,c.currentTime+s);g.gain.linearRampToValueAtTime(v,c.currentTime+s+.01);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+s+d);o.start(c.currentTime+s);o.stop(c.currentTime+s+d+.05);}catch(e){}}
 function falar(txt){try{if(!("speechSynthesis"in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang="pt-BR";u.rate=1;u.pitch=1;const v=speechSynthesis.getVoices().find(x=>x.lang.startsWith("pt"));if(v)u.voice=v;speechSynthesis.speak(u);}catch(e){}}
 function somNovoPedido(){
+  if(!getConfigPref("som",true))return;
   nota(659,0,.12,.85);nota(880,.14,.12,.85);nota(659,.28,.12,.85);nota(880,.42,.4,.8);
   setTimeout(()=>falar("Corrida Já! Você tem um novo pedido de corrida!"),500);
 }
@@ -2356,6 +2421,217 @@ async function abrirHistoricoMot(){
       </div>`;
     }).join("");
   }catch(e){el.innerHTML="<div style='padding:40px;text-align:center;color:var(--muted);font-size:13px;'>Erro ao carregar</div>";}
+}
+
+// ── CARDS WIDGET (home customizável) ──
+const CARDS_DISPONIVEIS=[
+  {id:"meta_dia",nome:"Meta do dia",desc:"Progresso da meta diária",icon:"🎯"},
+  {id:"meta_semana",nome:"Meta da semana",desc:"Progresso da meta semanal",icon:"🎯"},
+  {id:"meta_mes",nome:"Meta do mês",desc:"Progresso da meta mensal",icon:"🎯"},
+  {id:"ganhos_hoje",nome:"Ganhos de hoje",desc:"Total ganho no dia",icon:"💰"},
+  {id:"ganhos_semana",nome:"Ganhos da semana",desc:"Total ganho na semana",icon:"💰"},
+  {id:"corridas_hoje",nome:"Corridas hoje",desc:"Nº de corridas do dia",icon:"🚗"},
+  {id:"corridas_total",nome:"Total de corridas",desc:"Corridas desde o início",icon:"🚗"},
+  {id:"avaliacao",nome:"Avaliação",desc:"Sua nota média",icon:"⭐"},
+  {id:"grafico_semana",nome:"Gráfico da semana",desc:"Ganhos dos últimos 7 dias",icon:"📊"},
+];
+
+function getConfigCards(){
+  const s=localStorage.getItem("cjm_cards");
+  if(s)return JSON.parse(s);
+  // padrão inicial: alguns cards já ativos
+  const def=CARDS_DISPONIVEIS.map((c,i)=>({id:c.id,ativo:["meta_dia","corridas_hoje","avaliacao"].includes(c.id),tam:"m",ordem:i}));
+  localStorage.setItem("cjm_cards",JSON.stringify(def));
+  return def;
+}
+function saveConfigCards(cards){localStorage.setItem("cjm_cards",JSON.stringify(cards));}
+
+function getConfigPref(k,def){
+  const s=localStorage.getItem("cjm_pref_"+k);
+  return s===null?def:s==="1";
+}
+function setConfigPref(k,v){localStorage.setItem("cjm_pref_"+k,v?"1":"0");}
+
+// ── RENDERIZAR CARDS NA HOME ──
+async function renderCardsHome(){
+  const cont=document.getElementById("cards-container");
+  if(!cont||!user)return;
+  const cards=getConfigCards().filter(c=>c.ativo).sort((a,b)=>a.ordem-b.ordem);
+  if(cards.length===0){cont.innerHTML="";return;}
+
+  // Buscar dados necessários
+  const dados=await calcularDadosCards();
+
+  cont.innerHTML=cards.map((c,i)=>{
+    const info=CARDS_DISPONIVEIS.find(x=>x.id===c.id);
+    if(!info)return"";
+    const d=dados[c.id]||{val:"--",sub:""};
+    return `<div class="card-widget tam-${c.tam||'m'}" data-idx="${i}" data-id="${c.id}" ontouchstart="iniciaDragCard(event,${i})" ontouchmove="moveDragCard(event)" ontouchend="fimDragCard(event)">
+      <div class="card-widget-header"><div class="card-widget-titulo">${info.nome}</div><div class="card-widget-icon">${info.icon}</div></div>
+      <div class="card-widget-val">${d.val}</div>
+      <div class="card-widget-sub">${d.sub}</div>
+    </div>`;
+  }).join("");
+}
+
+async function calcularDadosCards(){
+  const dados={};
+  const tc=user?.totalCorridas||0;
+  dados.corridas_total={val:tc,sub:"desde o início"};
+  dados.avaliacao={val:(user?.avaliacao||5).toFixed(1)+" ⭐",sub:"média geral"};
+
+  if(!user)return dados;
+  try{
+    const snap=await db.collection("cj_corridas").where("motorista.id","==",user.id).where("status","==","concluida").get();
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+    const inicioSemana=new Date(hoje);inicioSemana.setDate(inicioSemana.getDate()-inicioSemana.getDay());
+    const inicioMes=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+
+    let gHoje=0,gSemana=0,gMes=0,cHoje=0;
+    snap.docs.forEach(d=>{
+      const c=d.data();
+      const dt=c.criadoEm&&c.criadoEm.toDate?c.criadoEm.toDate():new Date(0);
+      const v=c.valor||0;
+      if(dt>=hoje){gHoje+=v;cHoje++;}
+      if(dt>=inicioSemana)gSemana+=v;
+      if(dt>=inicioMes)gMes+=v;
+    });
+    dados.ganhos_hoje={val:"R$ "+gHoje.toFixed(2).replace(".",","),sub:"hoje"};
+    dados.ganhos_semana={val:"R$ "+gSemana.toFixed(2).replace(".",","),sub:"esta semana"};
+    dados.corridas_hoje={val:cHoje,sub:"hoje"};
+
+    const metas=JSON.parse(localStorage.getItem("cjm_metas")||"{}");
+    if(metas.dia)dados.meta_dia={val:Math.round((gHoje/metas.dia)*100)+"%",sub:"R$ "+gHoje.toFixed(0)+" de R$ "+metas.dia.toFixed(0)};
+    else dados.meta_dia={val:"--",sub:"Defina em Meus Ganhos"};
+    if(metas.semana)dados.meta_semana={val:Math.round((gSemana/metas.semana)*100)+"%",sub:"R$ "+gSemana.toFixed(0)+" de R$ "+metas.semana.toFixed(0)};
+    else dados.meta_semana={val:"--",sub:"Defina em Meus Ganhos"};
+    if(metas.mes)dados.meta_mes={val:Math.round((gMes/metas.mes)*100)+"%",sub:"R$ "+gMes.toFixed(0)+" de R$ "+metas.mes.toFixed(0)};
+    else dados.meta_mes={val:"--",sub:"Defina em Meus Ganhos"};
+
+    dados.grafico_semana={val:"R$ "+gSemana.toFixed(2).replace(".",","),sub:"toque em Meus Ganhos p/ gráfico"};
+  }catch(e){}
+  return dados;
+}
+
+// ── DRAG VERTICAL DOS CARDS ──
+let _cardDragTO=null,_cardDragging=false,_cardDragIdx=null,_cardDragEl=null,_cardDragMoved=false,_cardDragStartY=0;
+function iniciaDragCard(e,idx){
+  const t=e.touches?e.touches[0]:e;
+  _cardDragStartY=t.clientY;_cardDragMoved=false;
+  clearTimeout(_cardDragTO);
+  _cardDragTO=setTimeout(()=>{
+    if(_cardDragMoved)return;
+    _cardDragging=true;_cardDragIdx=idx;
+    _cardDragEl=document.querySelector(`.card-widget[data-idx="${idx}"]`);
+    const cont=document.getElementById("cards-container");
+    if(cont)cont.classList.add("reordenando");
+    if(_cardDragEl)_cardDragEl.classList.add("drag-ativo");
+    if(getConfigPref("vibra",true)&&navigator.vibrate)navigator.vibrate([50,20,50]);
+  },550);
+}
+function moveDragCard(e){
+  const t=e.touches?e.touches[0]:e;
+  if(!_cardDragging){
+    const dy=Math.abs(t.clientY-_cardDragStartY);
+    if(dy>10){_cardDragMoved=true;clearTimeout(_cardDragTO);}
+    return;
+  }
+  e.preventDefault();
+  const y=t.clientY;
+  const cont=document.getElementById("cards-container");
+  const items=[...cont.querySelectorAll(".card-widget:not(.drag-ativo)")];
+  items.forEach(item=>{
+    const r=item.getBoundingClientRect();
+    if(y>r.top+r.height*0.25&&y<r.bottom-r.height*0.25){
+      const j=parseInt(item.dataset.idx);
+      if(j===_cardDragIdx)return;
+      const cards=getConfigCards().filter(c=>c.ativo).sort((a,b)=>a.ordem-b.ordem);
+      const todos=getConfigCards();
+      const tmp=cards[_cardDragIdx].ordem;
+      cards[_cardDragIdx].ordem=cards[j].ordem;
+      cards[j].ordem=tmp;
+      // aplicar de volta na lista completa
+      cards.forEach(c=>{const idx2=todos.findIndex(t2=>t2.id===c.id);if(idx2>=0)todos[idx2]=c;});
+      saveConfigCards(todos);
+      _cardDragIdx=j;
+      renderCardsHome().then(()=>{
+        const cont2=document.getElementById("cards-container");
+        if(cont2)cont2.classList.add("reordenando");
+        const novoEl=document.querySelector(`.card-widget[data-idx="${j}"]`);
+        if(novoEl){novoEl.classList.add("drag-ativo");_cardDragEl=novoEl;}
+      });
+      if(getConfigPref("vibra",true)&&navigator.vibrate)navigator.vibrate(15);
+    }
+  });
+}
+function fimDragCard(e){
+  clearTimeout(_cardDragTO);
+  const cont=document.getElementById("cards-container");
+  if(cont)cont.classList.remove("reordenando");
+  if(_cardDragging){
+    _cardDragging=false;
+    document.querySelectorAll(".card-widget.drag-ativo").forEach(el=>el.classList.remove("drag-ativo"));
+    renderCardsHome();
+  }
+  _cardDragEl=null;_cardDragMoved=false;
+}
+
+// ── TELA DE CONFIGURAÇÕES ──
+function renderConfigCards(){
+  const el=document.getElementById("lista-config-cards");
+  if(!el)return;
+  const cards=getConfigCards();
+  el.innerHTML=CARDS_DISPONIVEIS.map(info=>{
+    const c=cards.find(x=>x.id===info.id)||{ativo:false,tam:"m"};
+    return `<div class="config-card-item">
+      <div class="config-card-icon">${info.icon}</div>
+      <div class="config-card-info">
+        <div class="config-card-nome">${info.nome}</div>
+        <div class="config-card-desc">${info.desc}</div>
+        ${c.ativo?`<div class="config-tam-sel">
+          <button class="config-tam-btn ${c.tam==='p'?'ativo':''}" onclick="setTamCard('${info.id}','p')">Pequeno</button>
+          <button class="config-tam-btn ${(c.tam==='m'||!c.tam)?'ativo':''}" onclick="setTamCard('${info.id}','m')">Médio</button>
+          <button class="config-tam-btn ${c.tam==='g'?'ativo':''}" onclick="setTamCard('${info.id}','g')">Grande</button>
+        </div>`:""}
+      </div>
+      <div class="config-toggle ${c.ativo?'on':''}" onclick="toggleCard('${info.id}')"></div>
+    </div>`;
+  }).join("");
+}
+function toggleCard(id){
+  const cards=getConfigCards();
+  const c=cards.find(x=>x.id===id);
+  if(c){
+    c.ativo=!c.ativo;
+    if(c.ativo&&(c.ordem===undefined))c.ordem=Math.max(...cards.map(x=>x.ordem||0))+1;
+    saveConfigCards(cards);
+    renderConfigCards();
+    if(getConfigPref("vibra",true)&&navigator.vibrate)navigator.vibrate(20);
+  }
+}
+function setTamCard(id,tam){
+  const cards=getConfigCards();
+  const c=cards.find(x=>x.id===id);
+  if(c){c.tam=tam;saveConfigCards(cards);renderConfigCards();}
+}
+function toggleConfigPref(k){
+  const atual=getConfigPref(k,true);
+  setConfigPref(k,!atual);
+  const el=document.getElementById("cfg-"+k);
+  if(el)el.classList.toggle("on",!atual);
+  if(k==="notif"&&!atual)pedirNotif();
+}
+function abrirTelaConfig(){
+  renderConfigCards();
+  ["som","vibra","notif"].forEach(k=>{
+    const el=document.getElementById("cfg-"+k);
+    if(el)el.classList.toggle("on",getConfigPref(k,true));
+  });
+}
+
+
+function abrirCoberturaMot(){
+  toast("📍 Cobertura: Holambra, Jaguariúna, Arthur Nogueira, Mogi Mirim, Mogi Guaçu e Campinas");
 }
 </script>
 </body>
