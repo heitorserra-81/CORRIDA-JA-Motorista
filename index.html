@@ -2411,9 +2411,15 @@ function avisarPagamentoMot(){
   if(document.getElementById("apple-icon"))document.getElementById("apple-icon").href=logoUrl;
   const m={name:"Corrida Já Motorista",short_name:"CJ Motorista",start_url:"./",display:"standalone",background_color:"#080f1e",theme_color:"#0f1a2e",lang:"pt-BR",icons:[{src:logoUrl,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
   document.getElementById("manifest-link").href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/json"}));
+  // Service Worker DESATIVADO temporariamente + remove qualquer SW antigo já instalado
+  // (evita ficar preso em cache de versões antigas enquanto o app está em desenvolvimento ativo)
   if("serviceWorker"in navigator){
-    const sw=`const C="cjm-v1";self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(["./"])));self.skipWaiting();});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener("fetch",e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
-    navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"})),{scope:"./"}).catch(()=>{});
+    navigator.serviceWorker.getRegistrations().then(regs=>{
+      regs.forEach(reg=>reg.unregister());
+    }).catch(()=>{});
+    if(window.caches){
+      caches.keys().then(names=>{names.forEach(n=>caches.delete(n));}).catch(()=>{});
+    }
   }
   const dismissed=localStorage.getItem("cjm_pwa_ok");
   const standalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone;
