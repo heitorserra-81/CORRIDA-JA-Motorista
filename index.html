@@ -1391,13 +1391,21 @@ function confirmarCrop(){
 
 // ── INIT ──
 function logoFallback(img){img.style.display="none";const p=img.parentElement;p.style.display="flex";p.style.alignItems="center";p.style.justifyContent="center";p.style.fontSize="50px";p.style.background="#1a2a4a";p.textContent="🚗";}
-window.addEventListener("load",()=>{
-  setTimeout(()=>{
-    const s=localStorage.getItem("cjm_user");
-    if(s){user=JSON.parse(s);irPara("home");}
-    else mostrarTela("tela-login");
-  },1800);
-});
+let _appIniciado=false;
+function _iniciarApp(){
+  if(_appIniciado)return;_appIniciado=true;
+  let s=null;
+  try{s=localStorage.getItem("cjm_user");}catch(e){}
+  if(s){
+    try{user=JSON.parse(s);irPara("home");}
+    catch(e){mostrarTela("tela-login");}
+  }else mostrarTela("tela-login");
+}
+// Múltiplas garantias de que o app SEMPRE inicia, não importa o timing de carregamento:
+if(document.readyState==="complete")setTimeout(_iniciarApp,800);
+else window.addEventListener("load",()=>setTimeout(_iniciarApp,800));
+document.addEventListener("DOMContentLoaded",()=>setTimeout(_iniciarApp,1200));
+setTimeout(_iniciarApp,3500); // rede de segurança absoluta: nunca trava mais que 3.5s
 
 // ── HASH SENHA ──
 function hashSenha(s){
