@@ -1693,6 +1693,12 @@ function somNovoPedido(){
 function somCorridaConcluida(){
   nota(523,0,.12,.7);nota(659,.13,.12,.7);nota(784,.26,.4,.7);
 }
+function somCancelamentoMot(){
+  nota(400,0,.15,.7);nota(300,.16,.3,.7);
+}
+function somMsgChatMot(){
+  nota(880,0,.1,.6);nota(1046,.11,.15,.6);
+}
 if("speechSynthesis"in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
 
 // ── MAPAS ──
@@ -1977,6 +1983,28 @@ async function entrarTelaCorrida(){
   mostrarTela("tela-corrida-mot");
   iniciarMapaCorridaMot();
   escutarCorridaAtivaMot(corridaAtiva.id);
+  escutarNotifChatMot(corridaAtiva.id);
+}
+
+// ── NOTIFICAÇÃO DE NOVAS MENSAGENS (mesmo com chat fechado) ──
+let unsubNotifChatMot=null,_chatMotAberto=false;
+function escutarNotifChatMot(cId){
+  if(unsubNotifChatMot)unsubNotifChatMot();
+  let primeira=true;
+  unsubNotifChatMot=db.collection("cj_corridas").doc(cId).collection("chat").orderBy("ts").onSnapshot(snap=>{
+    if(primeira){primeira=false;return;} // ignora histórico ao conectar
+    snap.docChanges().forEach(ch=>{
+      if(ch.type==="added"){
+        const m=ch.doc.data();
+        if(m.de==="motorista")return; // não notifica a própria mensagem
+        if(!_chatMotAberto){
+          try{getAC();}catch(e){}
+          somMsgChatMot();
+          notif("💬 Nova mensagem",m.texto||"O passageiro enviou uma mensagem.");
+        }
+      }
+    });
+  });
 }
 
 // ── ETAPAS (botão único, progride sozinho, estilo Uber/99) ──
@@ -2156,6 +2184,7 @@ async function concluirCorrida(){
     pararContadorEspera();
     if(unsubCorridaAtivaMot){unsubCorridaAtivaMot();unsubCorridaAtivaMot=null;}
     if(unsubChatMot){unsubChatMot();unsubChatMot=null;}
+    if(unsubNotifChatMot){unsubNotifChatMot();unsubNotifChatMot=null;}
     corridaAtiva=null;
     statusAtual="a_caminho";
     loading(false);
@@ -2178,6 +2207,7 @@ async function cancelarCorridaMotorista(){
     pararContadorEspera();
     if(unsubCorridaAtivaMot){unsubCorridaAtivaMot();unsubCorridaAtivaMot=null;}
     if(unsubChatMot){unsubChatMot();unsubChatMot=null;}
+    if(unsubNotifChatMot){unsubNotifChatMot();unsubNotifChatMot=null;}
     corridaAtiva=null;
     loading(false);
     irPara("home");
@@ -2192,10 +2222,14 @@ function escutarCorridaAtivaMot(id){
   unsubCorridaAtivaMot=db.collection("cj_corridas").doc(id).onSnapshot(snap=>{
     const d=snap.data();if(!d)return;
     if(d.status==="cancelada_cliente"){
+      try{getAC();}catch(e){}
+      somCancelamentoMot();
+      notif("❌ Corrida cancelada","O passageiro cancelou a corrida.");
       toast("Passageiro cancelou a corrida.");
       pararContadorEspera();
       if(unsubCorridaAtivaMot){unsubCorridaAtivaMot();unsubCorridaAtivaMot=null;}
       if(unsubChatMot){unsubChatMot();unsubChatMot=null;}
+      if(unsubNotifChatMot){unsubNotifChatMot();unsubNotifChatMot=null;}
       corridaAtiva=null;
       irPara("home");
       if(online)escutarPedidos();
@@ -2242,10 +2276,11 @@ function iniciarChatMot(cId){
 }
 function abrirChatMot(){
   if(!corridaAtiva)return;
+  _chatMotAberto=true;
   document.getElementById("modal-chat-mot").classList.add("show");
   iniciarChatMot(corridaAtiva.id);
 }
-function fecharChatMot(){document.getElementById("modal-chat-mot").classList.remove("show");}
+function fecharChatMot(){_chatMotAberto=false;document.getElementById("modal-chat-mot").classList.remove("show");}
 async function enviarMsgMot(){
   const inp=document.getElementById("chat-inp-mot");
   const txt=inp.value.trim();
