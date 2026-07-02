@@ -1961,8 +1961,20 @@ async function entrarTelaCorrida(){
 
 // ── ETAPAS ──
 let statusAtual="a_caminho",_contEspera=null,_segEspera=0;
+// Raio de tolerância em metros pra considerar "chegou" no local
+const RAIO_VALIDACAO_GPS=150;
+
 async function mudarStatus(status){
   if(!corridaAtiva)return;
+
+  // Validação por GPS: "cheguei" precisa estar perto da ORIGEM (onde o passageiro está)
+  if(status==="cheguei"){
+    const ok=await validarProximidadeGPS(corridaAtiva.origemLat,corridaAtiva.origemLng,"o local do passageiro");
+    if(!ok)return;
+  }
+  // Validação por GPS: "a_destino" (marcar que está a caminho do destino, ou seja, já embarcou) não exige,
+  // mas "no_carro" também pode ficar perto da origem ainda - sem exigência extra aqui.
+
   statusAtual=status;
   const etapas=["caminho","cheguei","no-carro","destino"];
   const statusMap={a_caminho:"caminho",cheguei:"cheguei",no_carro:"no-carro",a_destino:"destino"};
@@ -1982,6 +1994,28 @@ async function mudarStatus(status){
     if(status==="cheguei")upd.status="motorista_chegou";
     await db.collection("cj_corridas").doc(corridaAtiva.id).update(upd);
   }catch(e){}
+}
+
+// Verifica se a posição atual do GPS está dentro do raio de tolerância de um ponto alvo
+function validarProximidadeGPS(alvoLat,alvoLng,nomeLocal){
+  return new Promise(resolve=>{
+    if(!alvoLat||!alvoLng){resolve(true);return;} // sem coordenada salva, não bloqueia
+    if(!navigator.geolocation){resolve(true);return;}
+    toast("Verificando sua localização...");
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const distKm=dKmMot(pos.coords.latitude,pos.coords.longitude,alvoLat,alvoLng);
+      const distM=distKm*1000;
+      if(distM<=RAIO_VALIDACAO_GPS){
+        resolve(true);
+      }else{
+        alert(`📍 Você ainda não chegou em ${nomeLocal}.\n\nVocê está a ${Math.round(distM)}m de distância. Aproxime-se para confirmar esta etapa.`);
+        resolve(false);
+      }
+    },()=>{
+      alert("Não foi possível confirmar sua localização. Ative o GPS e tente novamente.");
+      resolve(false);
+    },{enableHighAccuracy:true,timeout:8000});
+  });
 }
 function iniciarContadorEspera(){
   _segEspera=0;
@@ -2009,6 +2043,11 @@ async function concluirCorrida(){
   const valor=parseFloat(document.getElementById("valor-corrida").value);
   if(!valor||valor<=0){toast("Informe o valor da corrida");return;}
   if(!corridaAtiva)return;
+
+  // Validação por GPS: só pode concluir se estiver perto do DESTINO
+  const okDestino=await validarProximidadeGPS(corridaAtiva.destinoLat,corridaAtiva.destinoLng,"o destino da corrida");
+  if(!okDestino)return;
+
   loading(true);
   try{
     await db.collection("cj_corridas").doc(corridaAtiva.id).update({status:"concluida",valor,concluidoEm:firebase.firestore.FieldValue.serverTimestamp()});
