@@ -583,6 +583,9 @@ input[type=file]{display:none;}
 .config-toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px 15px;margin:0 16px 9px;}
 .config-toggle-nome{font-size:13px;font-weight:700;color:#fff;}
 .config-toggle-desc{font-size:11px;color:var(--muted);margin-top:1px;}
+.btn-etapa-unica{width:100%;padding:17px;border-radius:16px;background:linear-gradient(135deg,#f59e0b,#fbbf24);border:none;color:#1a1a1a;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;margin-bottom:14px;box-shadow:0 6px 18px rgba(245,158,11,0.4);transition:background 0.3s,box-shadow 0.3s;}
+.btn-etapa-unica.etapa-embarque{background:linear-gradient(135deg,#3b82f6,#60a5fa);box-shadow:0 6px 18px rgba(59,130,246,0.4);}
+.btn-etapa-unica.etapa-concluir{background:linear-gradient(135deg,#22c55e,#4ade80);box-shadow:0 6px 18px rgba(34,197,94,0.4);color:#fff;}
 </style></head>
 <body>
 <!-- CANVAS PARTÍCULAS -->
@@ -750,13 +753,8 @@ input[type=file]{display:none;}
       <button class="btn-zap" onclick="abrirChatMot()">💬 Chat</button>
     </div>
 
-    <!-- ETAPAS -->
-    <div id="etapas-corrida">
-      <div class="etapa ativa" id="etapa-caminho" onclick="mudarStatus('a_caminho')">A caminho</div>
-      <div class="etapa" id="etapa-cheguei" onclick="mudarStatus('cheguei')">Cheguei</div>
-      <div class="etapa" id="etapa-no-carro" onclick="mudarStatus('no_carro')">No carro</div>
-      <div class="etapa" id="etapa-destino" onclick="mudarStatus('a_destino')">Ao destino</div>
-    </div>
+    <!-- BOTÃO ÚNICO DE PROGRESSO (muda de ação sozinho, como Uber/99) -->
+    <button class="btn-etapa-unica" id="btn-etapa-unica" onclick="avancarEtapa()">📍 Cheguei ao passageiro</button>
 
     <div id="contador-espera" style="display:none;">
       <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Aguardando passageiro</div>
@@ -768,7 +766,6 @@ input[type=file]{display:none;}
       <div class="valor-input-row"><div class="valor-prefix">R$</div><input type="number" class="valor-input" id="valor-corrida" placeholder="0,00" step="0.50" min="0"/></div>
     </div>
 
-    <button class="btn-concluir" onclick="concluirCorrida()">✓ Concluir corrida</button>
     <button class="btn-cancelar-corrida" onclick="cancelarCorridaMotorista()">Cancelar corrida</button>
   </div>
 </div>
@@ -1948,10 +1945,9 @@ async function entrarTelaCorrida(){
   }
 
   statusAtual="a_caminho";
-  ["caminho","cheguei","no-carro","destino"].forEach((e,i)=>{
-    document.getElementById("etapa-"+e)?.classList.toggle("ativa",i===0);
-  });
   g("corrida-status-txt").textContent="A caminho do passageiro";
+  const btn=g("btn-etapa-unica");
+  if(btn){btn.textContent="📍 Cheguei ao passageiro";btn.className="btn-etapa-unica";}
   pararContadorEspera();
 
   mostrarTela("tela-corrida-mot");
@@ -1959,41 +1955,51 @@ async function entrarTelaCorrida(){
   escutarCorridaAtivaMot(corridaAtiva.id);
 }
 
-// ── ETAPAS ──
+// ── ETAPAS (botão único, progride sozinho, estilo Uber/99) ──
 let statusAtual="a_caminho",_contEspera=null,_segEspera=0;
-// Raio de tolerância em metros pra considerar "chegou" no local
-const RAIO_VALIDACAO_GPS=150;
+const RAIO_VALIDACAO_GPS=150; // metros de tolerância pra considerar "chegou"
 
-async function mudarStatus(status){
+async function avancarEtapa(){
   if(!corridaAtiva)return;
+  const btn=document.getElementById("btn-etapa-unica");
+  if(btn)btn.disabled=true;
 
-  // Validação por GPS: "cheguei" precisa estar perto da ORIGEM (onde o passageiro está)
-  if(status==="cheguei"){
+  if(statusAtual==="a_caminho"){
+    // Etapa 1 -> 2: precisa estar perto do PASSAGEIRO
     const ok=await validarProximidadeGPS(corridaAtiva.origemLat,corridaAtiva.origemLng,"o local do passageiro");
-    if(!ok)return;
+    if(!ok){if(btn)btn.disabled=false;return;}
+    statusAtual="cheguei";
+    document.getElementById("corrida-status-txt").textContent="Cheguei no local!";
+    if(btn){btn.textContent="🚗 Iniciar corrida";btn.className="btn-etapa-unica etapa-embarque";}
+    iniciarContadorEspera();
+    try{await db.collection("cj_corridas").doc(corridaAtiva.id).update({statusEtapa:"cheguei",status:"motorista_chegou"});}catch(e){}
+
+  }else if(statusAtual==="cheguei"){
+    // Etapa 2 -> 3: iniciar corrida, sem validação de GPS (passageiro já embarcou aqui mesmo)
+    statusAtual="no_carro";
+    document.getElementById("corrida-status-txt").textContent="A caminho do destino";
+    pararContadorEspera();
+    if(btn){btn.textContent="🏁 Concluir corrida";btn.className="btn-etapa-unica etapa-concluir";}
+    // Trocar a rota do mapa para o DESTINO agora
+    atualizarRotaParaDestino();
+    try{await db.collection("cj_corridas").doc(corridaAtiva.id).update({statusEtapa:"no_carro",status:"a_caminho"});}catch(e){}
+
+  }else if(statusAtual==="no_carro"){
+    // Etapa 3 -> concluir: precisa estar perto do DESTINO
+    if(btn)btn.disabled=false;
+    concluirCorrida();
+    return;
   }
-  // Validação por GPS: "a_destino" (marcar que está a caminho do destino, ou seja, já embarcou) não exige,
-  // mas "no_carro" também pode ficar perto da origem ainda - sem exigência extra aqui.
+  if(btn)btn.disabled=false;
+}
 
-  statusAtual=status;
-  const etapas=["caminho","cheguei","no-carro","destino"];
-  const statusMap={a_caminho:"caminho",cheguei:"cheguei",no_carro:"no-carro",a_destino:"destino"};
-  const idx=etapas.indexOf(statusMap[status]);
-  etapas.forEach((e,i)=>{
-    const el=document.getElementById("etapa-"+e);
-    if(el)el.classList.toggle("ativa",i<=idx);
-  });
-  const textos={a_caminho:"A caminho do passageiro",cheguei:"Cheguei no local!",no_carro:"Passageiro no carro",a_destino:"A caminho do destino"};
-  document.getElementById("corrida-status-txt").textContent=textos[status]||status;
-
-  if(status==="cheguei")iniciarContadorEspera();
-  else pararContadorEspera();
-
-  try{
-    const upd={statusEtapa:status};
-    if(status==="cheguei")upd.status="motorista_chegou";
-    await db.collection("cj_corridas").doc(corridaAtiva.id).update(upd);
-  }catch(e){}
+function atualizarRotaParaDestino(){
+  // Atualiza o marcador de destino no mapa (a navegação externa já foi ajustada em abrirNavegacao)
+  if(mapaCorridaMot&&corridaAtiva?.destinoLat&&corridaAtiva?.destinoLng){
+    if(marcDestinoMot)mapaCorridaMot.removeLayer(marcDestinoMot);
+    marcDestinoMot=L.marker([corridaAtiva.destinoLat,corridaAtiva.destinoLng]).addTo(mapaCorridaMot);
+    mapaCorridaMot.setView([corridaAtiva.destinoLat,corridaAtiva.destinoLng],14);
+  }
 }
 
 // Verifica se a posição atual do GPS está dentro do raio de tolerância de um ponto alvo
@@ -2017,6 +2023,7 @@ function validarProximidadeGPS(alvoLat,alvoLng,nomeLocal){
     },{enableHighAccuracy:true,timeout:8000});
   });
 }
+
 function iniciarContadorEspera(){
   _segEspera=0;
   document.getElementById("contador-espera").style.display="block";
@@ -2035,7 +2042,15 @@ function pararContadorEspera(){
 // ── NAVEGAÇÃO ──
 function abrirNavegacao(){
   if(!corridaAtiva)return;
-  window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(corridaAtiva.destino)}&travelmode=driving`,"_blank");
+  // Enquanto não iniciou a corrida (ainda buscando o passageiro), navega até o PASSAGEIRO.
+  // Depois de "no_carro" (corrida iniciada), navega até o DESTINO final.
+  if(statusAtual==="no_carro"){
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(corridaAtiva.destino)}&travelmode=driving`,"_blank");
+  }else if(corridaAtiva.origemLat&&corridaAtiva.origemLng){
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${corridaAtiva.origemLat},${corridaAtiva.origemLng}&travelmode=driving`,"_blank");
+  }else{
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(corridaAtiva.destino)}&travelmode=driving`,"_blank");
+  }
 }
 
 // ── CONCLUIR CORRIDA ──
@@ -2062,6 +2077,7 @@ async function concluirCorrida(){
     if(unsubCorridaAtivaMot){unsubCorridaAtivaMot();unsubCorridaAtivaMot=null;}
     if(unsubChatMot){unsubChatMot();unsubChatMot=null;}
     corridaAtiva=null;
+    statusAtual="a_caminho";
     loading(false);
     toast("Corrida concluída! 🎉");
     // Reiniciar a escuta de novos pedidos (garante que não fique "surda" após concluir)
@@ -2159,7 +2175,7 @@ async function enviarMsgMot(){
     await db.collection("cj_corridas").doc(corridaAtiva.id).collection("chat").add({
       texto:txt,de:"motorista",nome:user?.nome||"Motorista",ts:firebase.firestore.FieldValue.serverTimestamp()
     });
-  }catch(e){toast("Erro ao enviar.");}
+  }catch(e){toast("Erro ao enviar: "+e.message);}
 }
 
 // ── AVALIAÇÃO OBRIGATÓRIA (motorista avalia passageiro) ──
