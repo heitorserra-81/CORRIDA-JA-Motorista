@@ -1966,13 +1966,17 @@ async function avancarEtapa(){
 
   if(statusAtual==="a_caminho"){
     // Etapa 1 -> 2: precisa estar perto do PASSAGEIRO
-    const ok=await validarProximidadeGPS(corridaAtiva.origemLat,corridaAtiva.origemLng,"o local do passageiro");
-    if(!ok){if(btn)btn.disabled=false;return;}
+    const res=await validarProximidadeGPS(corridaAtiva.origemLat,corridaAtiva.origemLng,"o local do passageiro");
+    if(!res){if(btn)btn.disabled=false;return;}
     statusAtual="cheguei";
     document.getElementById("corrida-status-txt").textContent="Cheguei no local!";
     if(btn){btn.textContent="🚗 Iniciar corrida";btn.className="btn-etapa-unica etapa-embarque";}
     iniciarContadorEspera();
-    try{await db.collection("cj_corridas").doc(corridaAtiva.id).update({statusEtapa:"cheguei",status:"motorista_chegou"});}catch(e){}
+    try{
+      const upd={statusEtapa:"cheguei",status:"motorista_chegou"};
+      if(res&&res.forcado)upd.divergenciaChegada={motivo:res.motivo,distanciaM:res.distanciaM,em:new Date().toISOString()};
+      await db.collection("cj_corridas").doc(corridaAtiva.id).update(upd);
+    }catch(e){}
 
   }else if(statusAtual==="cheguei"){
     // Etapa 2 -> 3: iniciar corrida, sem validação de GPS (passageiro já embarcou aqui mesmo)
@@ -2014,8 +2018,19 @@ function validarProximidadeGPS(alvoLat,alvoLng,nomeLocal){
       if(distM<=RAIO_VALIDACAO_GPS){
         resolve(true);
       }else{
-        alert(`📍 Você ainda não chegou em ${nomeLocal}.\n\nVocê está a ${Math.round(distM)}m de distância. Aproxime-se para confirmar esta etapa.`);
-        resolve(false);
+        // Oferece saída manual: passageiro pode ter pedido pra descer antes, mudou de plano, etc.
+        const forcar=confirm(`📍 Você ainda não chegou em ${nomeLocal}.\n\nVocê está a ${Math.round(distM)}m de distância.\n\nToque OK para tentar novamente mais perto, ou CANCELAR para confirmar mesmo assim (será registrado como divergência para revisão).`);
+        if(forcar){
+          resolve(false); // vai tentar de novo
+        }else{
+          const motivo=prompt("Por que está confirmando fora do local esperado? (ex: passageiro pediu para descer antes, mudança de destino combinada)","");
+          if(motivo===null||motivo.trim()===""){
+            toast("É necessário informar um motivo para continuar.");
+            resolve(false);
+          }else{
+            resolve({forcado:true,motivo:motivo.trim(),distanciaM:Math.round(distM)});
+          }
+        }
       }
     },()=>{
       alert("Não foi possível confirmar sua localização. Ative o GPS e tente novamente.");
@@ -2060,12 +2075,14 @@ async function concluirCorrida(){
   if(!corridaAtiva)return;
 
   // Validação por GPS: só pode concluir se estiver perto do DESTINO
-  const okDestino=await validarProximidadeGPS(corridaAtiva.destinoLat,corridaAtiva.destinoLng,"o destino da corrida");
-  if(!okDestino)return;
+  const resDestino=await validarProximidadeGPS(corridaAtiva.destinoLat,corridaAtiva.destinoLng,"o destino da corrida");
+  if(!resDestino)return;
 
   loading(true);
   try{
-    await db.collection("cj_corridas").doc(corridaAtiva.id).update({status:"concluida",valor,concluidoEm:firebase.firestore.FieldValue.serverTimestamp()});
+    const updConclusao={status:"concluida",valor,concluidoEm:firebase.firestore.FieldValue.serverTimestamp()};
+    if(resDestino&&resDestino.forcado)updConclusao.divergenciaConclusao={motivo:resDestino.motivo,distanciaM:resDestino.distanciaM,em:new Date().toISOString()};
+    await db.collection("cj_corridas").doc(corridaAtiva.id).update(updConclusao);
     const ng=(user.totalGanhos||0)+valor,nco=(user.totalCorridas||0)+1;
     await db.collection("cj_motoristas").doc(user.id).update({totalGanhos:ng,totalCorridas:nco});
     user.totalGanhos=ng;user.totalCorridas=nco;
@@ -2768,6 +2785,14 @@ function abrirTelaConfig(){
 function abrirCoberturaMot(){
   toast("📍 Cobertura: Holambra, Jaguariúna, Arthur Nogueira, Mogi Mirim, Mogi Guaçu e Campinas");
 }
+
+// Reconectar a escuta de pedidos sempre que a aba voltar a ficar visível
+// (mitigação: navegadores pausam listeners em segundo plano)
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible"&&online&&!corridaAtiva){
+    escutarPedidos();
+  }
+});
 </script>
 </body>
 </html>
