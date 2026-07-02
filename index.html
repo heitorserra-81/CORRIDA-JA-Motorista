@@ -1709,15 +1709,15 @@ function iniciarGPSInicial(){
 // ── TABELA DE VALORES E CRÉDITOS POR DISTÂNCIA ──
 // Configurável futuramente no painel admin
 function calcularValorPorDistancia(km){
-  const tabela=[{ate:2,preco:8},{ate:5,preco:12},{ate:10,preco:18},{ate:20,preco:25},{ate:999,preco:35}];
+  const tabela=[{ate:2,preco:8},{ate:5,preco:12},{ate:10,preco:18},{ate:20,preco:28},{ate:35,preco:40},{ate:50,preco:52},{ate:999,preco:65}];
   for(const t of tabela){if(km<=t.ate)return t.preco;}
-  return 35;
+  return 65;
 }
 function calcularCreditoPorDistancia(km){
-  // Pontos de partida modestos, ajustáveis no painel admin
-  const tabela=[{ate:5,creditos:1},{ate:15,creditos:2},{ate:30,creditos:3},{ate:999,creditos:4}];
+  // Teto de 3 créditos por corrida, mesmo em distâncias longas (Campinas, Mogi Guaçu etc)
+  const tabela=[{ate:5,creditos:1},{ate:15,creditos:2},{ate:999,creditos:3}];
   for(const t of tabela){if(km<=t.ate)return t.creditos;}
-  return 4;
+  return 3;
 }
 function dKmMot(la1,lo1,la2,lo2){
   const R=6371,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;
