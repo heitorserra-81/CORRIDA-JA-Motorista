@@ -1744,12 +1744,22 @@ function nivelPorCorridas(tc){
 
 // ── ESCUTAR PEDIDOS ──
 let unsubPedidos=null,pedidoAtual=null,corridaAtiva=null,timerPedido=null,_pedSeg=15;
+let _escutaPedidosIniciadaEm=null;
 function escutarPedidos(){
   if(unsubPedidos)unsubPedidos();
+  _escutaPedidosIniciadaEm=Date.now();
   unsubPedidos=db.collection("cj_corridas").where("status","==","aguardando").onSnapshot(snap=>{
     snap.docChanges().forEach(change=>{
       if(change.type==="added"&&!pedidoAtual&&!corridaAtiva){
-        mostrarPedido({...change.doc.data(),id:change.doc.id});
+        const d=change.doc.data();
+        // Ignorar pedidos "presos" antigos: só notificar se foi criado nos últimos 2 minutos
+        const criadoEm=d.criadoEm&&d.criadoEm.toDate?d.criadoEm.toDate().getTime():0;
+        const agora=Date.now();
+        const idadeMin=(agora-criadoEm)/60000;
+        if(criadoEm&&idadeMin>2){
+          return; // pedido velho/preso, ignora silenciosamente
+        }
+        mostrarPedido({...d,id:change.doc.id});
       }
       if(change.type==="modified"&&pedidoAtual&&change.doc.id===pedidoAtual.id){
         const d=change.doc.data();
@@ -2015,6 +2025,8 @@ async function concluirCorrida(){
     corridaAtiva=null;
     loading(false);
     toast("Corrida concluída! 🎉");
+    // Reiniciar a escuta de novos pedidos (garante que não fique "surda" após concluir)
+    if(online)escutarPedidos();
     // Avaliação obrigatória antes de continuar
     setTimeout(()=>mostrarAvalMot(cIdConcluida,nomeConcluido),700);
   }catch(e){loading(false);toast("Erro: "+e.message);}
