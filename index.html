@@ -1230,6 +1230,30 @@ input[type=file]{display:none;}
   <button onclick="fecharPWA()" style="width:100%;padding:10px;border-radius:16px;background:rgba(255,255,255,0.05);border:none;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Entendi</button>
 </div>
 
+<!-- MODAL VALIDAÇÃO GPS (fora do local) -->
+<div class="modal-base" id="modal-gps-fora">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="font-size:32px;text-align:center;margin-bottom:10px;">📍</div>
+    <div style="font-size:16px;font-weight:800;color:#fff;text-align:center;margin-bottom:8px;" id="gps-fora-titulo">Você ainda não chegou</div>
+    <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.5;" id="gps-fora-desc">Você está a 000m de distância.</div>
+    <button id="gps-fora-btn-continuar" class="btn-p" style="width:100%;margin-bottom:9px;">Continuar buscando</button>
+    <button id="gps-fora-btn-forcar" style="width:100%;padding:13px;border-radius:14px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">Confirmar mesmo assim</button>
+  </div>
+</div>
+
+<!-- MODAL MOTIVO DA DIVERGÊNCIA -->
+<div class="modal-base" id="modal-gps-motivo">
+  <div class="modal-sheet">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:3px;margin:0 auto 16px;"></div>
+    <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:6px;">Por que está confirmando fora do local?</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Isso fica registrado para revisão. Seja honesto — ex: "passageiro pediu para descer antes", "combinamos mudar o destino".</div>
+    <textarea id="gps-motivo-texto" placeholder="Digite o motivo..." style="width:100%;min-height:90px;background:var(--card2);border:1px solid var(--border);border-radius:13px;padding:12px;color:var(--text);font-family:inherit;font-size:13px;resize:none;margin-bottom:16px;"></textarea>
+    <button id="gps-motivo-btn-confirmar" class="btn-p" style="width:100%;margin-bottom:9px;">Confirmar</button>
+    <button id="gps-motivo-btn-cancelar" style="width:100%;padding:13px;border-radius:14px;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Voltar</button>
+  </div>
+</div>
+
 <!-- TOAST / LOADING -->
 <div id="toast"></div>
 <div id="loading"><div class="ld-spin"></div></div>
@@ -2007,7 +2031,7 @@ function atualizarRotaParaDestino(){
 }
 
 // Verifica se a posição atual do GPS está dentro do raio de tolerância de um ponto alvo
-function validarProximidadeGPS(alvoLat,alvoLng,nomeLocal){
+function validarProximidadeGPS(alvoLat,alvoLng,nomeLocal,ehConclusao=false){
   return new Promise(resolve=>{
     if(!alvoLat||!alvoLng){resolve(true);return;} // sem coordenada salva, não bloqueia
     if(!navigator.geolocation){resolve(true);return;}
@@ -2018,25 +2042,64 @@ function validarProximidadeGPS(alvoLat,alvoLng,nomeLocal){
       if(distM<=RAIO_VALIDACAO_GPS){
         resolve(true);
       }else{
-        // Oferece saída manual: passageiro pode ter pedido pra descer antes, mudou de plano, etc.
-        const forcar=confirm(`📍 Você ainda não chegou em ${nomeLocal}.\n\nVocê está a ${Math.round(distM)}m de distância.\n\nToque OK para tentar novamente mais perto, ou CANCELAR para confirmar mesmo assim (será registrado como divergência para revisão).`);
-        if(forcar){
-          resolve(false); // vai tentar de novo
-        }else{
-          const motivo=prompt("Por que está confirmando fora do local esperado? (ex: passageiro pediu para descer antes, mudança de destino combinada)","");
-          if(motivo===null||motivo.trim()===""){
-            toast("É necessário informar um motivo para continuar.");
-            resolve(false);
-          }else{
-            resolve({forcado:true,motivo:motivo.trim(),distanciaM:Math.round(distM)});
-          }
-        }
+        mostrarModalGpsFora(nomeLocal,Math.round(distM),resolve,ehConclusao);
       }
     },()=>{
       alert("Não foi possível confirmar sua localização. Ative o GPS e tente novamente.");
       resolve(false);
     },{enableHighAccuracy:true,timeout:8000});
   });
+}
+
+function mostrarModalGpsFora(nomeLocal,distM,resolve,ehConclusao){
+  document.getElementById("gps-fora-titulo").textContent="Você ainda não chegou em "+nomeLocal;
+  document.getElementById("gps-fora-desc").textContent=`Você está a ${distM}m de distância.`;
+  document.getElementById("modal-gps-fora").classList.add("show");
+
+  const btnContinuar=document.getElementById("gps-fora-btn-continuar");
+  const btnForcar=document.getElementById("gps-fora-btn-forcar");
+  btnContinuar.textContent=ehConclusao?"Continuar a corrida":"Continuar buscando";
+  btnForcar.textContent=ehConclusao?"Encerrar corrida mesmo assim":"Confirmar mesmo assim";
+
+  const limpar=()=>{
+    btnContinuar.onclick=null;
+    btnForcar.onclick=null;
+    document.getElementById("modal-gps-fora").classList.remove("show");
+  };
+
+  btnContinuar.onclick=()=>{
+    limpar();
+    resolve(false); // vai tentar de novo
+  };
+  btnForcar.onclick=()=>{
+    limpar();
+    mostrarModalGpsMotivo(distM,resolve);
+  };
+}
+
+function mostrarModalGpsMotivo(distM,resolve){
+  document.getElementById("gps-motivo-texto").value="";
+  document.getElementById("modal-gps-motivo").classList.add("show");
+
+  const btnConfirmar=document.getElementById("gps-motivo-btn-confirmar");
+  const btnCancelar=document.getElementById("gps-motivo-btn-cancelar");
+
+  const limpar=()=>{
+    btnConfirmar.onclick=null;
+    btnCancelar.onclick=null;
+    document.getElementById("modal-gps-motivo").classList.remove("show");
+  };
+
+  btnConfirmar.onclick=()=>{
+    const motivo=document.getElementById("gps-motivo-texto").value.trim();
+    if(!motivo){toast("É necessário informar um motivo para continuar.");return;}
+    limpar();
+    resolve({forcado:true,motivo,distanciaM:distM});
+  };
+  btnCancelar.onclick=()=>{
+    limpar();
+    resolve(false);
+  };
 }
 
 function iniciarContadorEspera(){
@@ -2075,7 +2138,7 @@ async function concluirCorrida(){
   if(!corridaAtiva)return;
 
   // Validação por GPS: só pode concluir se estiver perto do DESTINO
-  const resDestino=await validarProximidadeGPS(corridaAtiva.destinoLat,corridaAtiva.destinoLng,"o destino da corrida");
+  const resDestino=await validarProximidadeGPS(corridaAtiva.destinoLat,corridaAtiva.destinoLng,"o destino da corrida",true);
   if(!resDestino)return;
 
   loading(true);
